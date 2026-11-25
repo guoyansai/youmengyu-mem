@@ -7,9 +7,10 @@
   ],
   "importance": 3,
   "createdAt": "2026-11-25T06:40:21.972Z",
-  "updatedAt": "2026-11-25T06:40:21.972Z",
+  "updatedAt": "2026-11-25T10:18:40.463Z",
   "source": "agent:7ddb8d21-9f32-4c3e-bdcb-ea9f411440a2",
   "uses": 0,
+  "pinned": false,
   "space": "default",
   "facts": [
     "先看开工助手里的约定和验收，再修 Cursor 打不开，并加上按 git 用户分小时写入更新日志。"
@@ -19,8 +20,8 @@
     "kind": "rule",
     "session": "7ddb8d21-9f32-4c3e-bdcb-ea9f411440a2"
   },
-  "archived": false,
-  "isLatest": true,
+  "archived": true,
+  "isLatest": false,
   "relations": [],
   "versions": []
 }

@@ -7,9 +7,10 @@
   ],
   "importance": 3,
   "createdAt": "2026-11-25T07:26:33.362Z",
-  "updatedAt": "2026-11-25T07:26:33.362Z",
+  "updatedAt": "2026-11-25T10:18:33.440Z",
   "source": "agent:89cde04f-a1ed-493c-8a03-4f8504706ad4",
   "uses": 0,
+  "pinned": false,
   "space": "default",
   "facts": [
     "我按仓库约定先对摘要和熟悉度，再定点看 `.youmengyu` 的落盘路径。"
@@ -19,8 +20,8 @@
     "kind": "rule",
     "session": "89cde04f-a1ed-493c-8a03-4f8504706ad4"
   },
-  "archived": false,
-  "isLatest": true,
+  "archived": true,
+  "isLatest": false,
   "relations": [],
   "versions": []
 }

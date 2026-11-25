@@ -7,9 +7,10 @@
   ],
   "importance": 3,
   "createdAt": "2026-11-25T08:59:41.901Z",
-  "updatedAt": "2026-11-25T08:59:41.901Z",
+  "updatedAt": "2026-11-25T10:18:33.438Z",
   "source": "agent:41033fdf-3029-404c-8942-453e02c2feee",
   "uses": 0,
+  "pinned": false,
   "space": "default",
   "facts": [
     "先按仓库约定看开工助手和记忆落盘结构，再定位哪些文件会被多人多终端同时改写。"
@@ -19,8 +20,8 @@
     "kind": "rule",
     "session": "41033fdf-3029-404c-8942-453e02c2feee"
   },
-  "archived": false,
-  "isLatest": true,
+  "archived": true,
+  "isLatest": false,
   "relations": [],
   "versions": []
 }

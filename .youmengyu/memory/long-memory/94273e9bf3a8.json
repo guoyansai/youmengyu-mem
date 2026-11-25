@@ -7,9 +7,10 @@
   ],
   "importance": 3,
   "createdAt": "2026-11-25T07:26:33.359Z",
-  "updatedAt": "2026-11-25T07:26:33.359Z",
+  "updatedAt": "2026-11-25T10:18:40.461Z",
   "source": "agent:89cde04f-a1ed-493c-8a03-4f8504706ad4",
   "uses": 0,
+  "pinned": false,
   "space": "default",
   "facts": [
     "文件变更太密，我先看开工助手里的约定和验收，再定位 `.youmengyu` 里哪些写入在一次性刷太多文件。"
@@ -19,8 +20,8 @@
     "kind": "rule",
     "session": "89cde04f-a1ed-493c-8a03-4f8504706ad4"
   },
-  "archived": false,
-  "isLatest": true,
+  "archived": true,
+  "isLatest": false,
   "relations": [],
   "versions": []
 }

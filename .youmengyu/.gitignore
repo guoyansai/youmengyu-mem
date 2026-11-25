@@ -1,0 +1,6 @@
+# 游梦鱼·长记忆：本机运行态不入库，避免多用户多终端 Git 同步冲突
+runs/
+cache/
+tmp/
+test/reports/
+.local/

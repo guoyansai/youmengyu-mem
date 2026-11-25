@@ -58,8 +58,10 @@ test('一拍只补缺失的身份和目标，并带上守则、焦点、风格',
   const rels = plan.files.map((f) => f.rel);
   assert.ok(!rels.includes('.youmengyu/memory/core/identity.md'));
   assert.ok(rels.includes('.youmengyu/memory/core/goals.md'));
-  assert.ok(rels.includes('.youmengyu/memory/evolution/awareness.md'));
-  assert.ok(rels.includes('.youmengyu/memory/evolution/local-narrative.md'));
+  // 简报和叙事是本机内容，落在 .local/ 不入库，多终端同步不冲突
+  assert.ok(rels.includes('.youmengyu/memory/evolution/.local/awareness.md'));
+  assert.ok(rels.includes('.youmengyu/memory/evolution/.local/local-narrative.md'));
+  assert.ok(!rels.includes('.youmengyu/memory/evolution/awareness.md'));
   const kinds = plan.memories.map((m) => m.kind);
   assert.deepEqual(kinds, ['charter', 'focus', 'style']);
   const charter = plan.memories[0];

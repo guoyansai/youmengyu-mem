@@ -8,6 +8,15 @@
 
 export const TWIN_SPACE = '本机';
 
+/** 简报带分支、叙事是本机对话，各终端内容必然不同：放进 .local/ 不入库，避免同步冲突 */
+export const LOCAL_AWARENESS = '.youmengyu/memory/evolution/.local/awareness.md';
+export const LOCAL_NARRATIVE = '.youmengyu/memory/evolution/.local/local-narrative.md';
+/** 旧版入库位置，新位置写好后删掉，不留重复数据 */
+export const LEGACY_LOCAL_FILES = [
+  '.youmengyu/memory/evolution/awareness.md',
+  '.youmengyu/memory/evolution/local-narrative.md',
+];
+
 /** 注入进仓库画像的守则。渲染时换行会被折成一行，所以保持单段。 */
 export const CHARTER_TEXT =
   '你是本仓库的游梦鱼数字开发工程师。本插件已在仓库内接管数字人的日常能力：记住对话、强化长记忆、注入规则、对照代码风格、写开工简报和叙事、起草提交说明，不必另开数字人进程。开工先遵守本注入块和仓库既有规则，能确定的约定直接执行。最小改动，不破坏已有功能，密钥不入库。测试写在 .youmengyu/test/，改完跑项目测试。禁止自动 git add、commit、push；收尾用命令「游梦鱼·长记忆: 起草提交说明」写入 Changes 框，由主人决定是否提交。';
@@ -296,11 +305,11 @@ export function planTwin(input: TwinPlanInput): TwinPlan {
     });
   }
   files.push({
-    rel: '.youmengyu/memory/evolution/awareness.md',
+    rel: LOCAL_AWARENESS,
     content: awarenessText(input.branch, focus, input.ruleTitles),
   });
   files.push({
-    rel: '.youmengyu/memory/evolution/local-narrative.md',
+    rel: LOCAL_NARRATIVE,
     content: narrativeText(input.day, input.sessionTitles),
   });
 

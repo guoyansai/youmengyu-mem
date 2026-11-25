@@ -1,6 +1,6 @@
 {
   "files": {
-    "AGENTS.md": 5,
+    "AGENTS.md": 6,
     "src/agent-learn.ts": 2,
     "src/agent-loop.ts": 2,
     "src/extension.ts": 3,
@@ -16,18 +16,29 @@
     "src/ai/settings-panel.ts": 1,
     ".youmengyu/test/unit/panel-shell.test.mjs": 3,
     "awareness.md": 1,
-    "CHANGELOG.md": 1,
+    "CHANGELOG.md": 2,
     ".youmengyu/test/unit/changelog-hourly.test.mjs": 1,
-    "agent-assist.json": 1,
+    "agent-assist.json": 2,
     "panel.ts": 1,
     "panel-shell.test.mjs": 2,
     "dist/panel.js": 1,
     "extension.ts": 1,
     ".vscode/extensions.json": 1,
-    ".youmengyu/test/unit/panel-open-fallback.test.mjs": 1
+    ".youmengyu/test/unit/panel-open-fallback.test.mjs": 1,
+    "store.ts": 1,
+    "agent-learn.ts": 1,
+    "inject.ts": 1,
+    "twin-local.ts": 1,
+    "changelog-log.ts": 1,
+    "youmengyu.ts": 1,
+    ".twin/ops-state.json": 1,
+    "src/memory-merge.ts": 1,
+    "twin-loop.ts": 1
   },
   "commands": {
-    "git 用户名是「游梦鱼」，所以个人文件是 `CHANGELOG+游梦鱼.md…": 1
+    "git 用户名是「游梦鱼」，所以个人文件是 `CHANGELOG+游梦鱼.md…": 1,
+    "git rm .youmengyu/runs": 1,
+    "Git": 2
   },
-  "updatedAt": "2026-11-25T07:15:33.034Z"
+  "updatedAt": "2026-11-25T09:00:34.216Z"
 }

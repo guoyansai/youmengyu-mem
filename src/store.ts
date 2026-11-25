@@ -11,6 +11,7 @@ import {
   normalizeText,
   IssueReport,
 } from './clean';
+import { healConflictText, isTombstone, makeTombstone, stringifyEntry } from './memory-merge';
 import { MEMORY_TAGS, MemoryDoc, MemoryEntry, MemoryTag, MemoryVersion } from './types';
 
 /** isExpired 的实现挪到了 clean.ts（纯函数可单测），这里保持原导入路径可用 */
@@ -41,6 +42,10 @@ export const DEFAULT_SPACE = 'default';
 const MAX_VERSIONS = 10;
 /** 事实化片段的单条最短长度 */
 const MIN_FACT_LEN = 4;
+/** 删除墓碑保留天数：足够让各终端同步到删除，再清掉文件 */
+const TOMBSTONE_KEEP_MS = 30 * 86400000;
+/** 每次加载最多清理的过期墓碑数，避免一次改太多文件 */
+const TOMBSTONE_PURGE_CAP = 20;
 
 export type SortMode = 'relevance' | 'recent' | 'importance' | 'uses';
 
@@ -297,16 +302,37 @@ export class MemoryStore {
     }
   }
 
+  /** 最近一次加载修复的冲突文件数（界面提示用） */
+  healed = 0;
+
   private load(): void {
     const entries: MemoryEntry[] = [];
+    const now = Date.now();
+    let purged = 0;
+    this.healed = 0;
     try {
       if (fs.existsSync(this.dir)) {
         for (const name of fs.readdirSync(this.dir)) {
           if (!name.endsWith('.json') || name.startsWith('.')) continue;
+          const file = path.join(this.dir, name);
           try {
-            const raw = JSON.parse(
-              fs.readFileSync(path.join(this.dir, name), 'utf-8').replace(/^\uFEFF/, '')
-            ) as Partial<MemoryEntry> & Partial<MemoryDoc>;
+            let text = fs.readFileSync(file, 'utf-8').replace(/^\uFEFF/, '');
+            // 没装合并驱动的克隆拉取后可能留下冲突标记：按字段合并修好再读
+            const fixed = healConflictText(text);
+            if (fixed) {
+              this.writeJsonAtomic(file, fixed);
+              text = fixed;
+              this.healed += 1;
+            }
+            const raw = JSON.parse(text) as Partial<MemoryEntry> & Partial<MemoryDoc>;
+            if (isTombstone(raw)) {
+              const at = new Date(raw.deletedAt).getTime();
+              if (purged < TOMBSTONE_PURGE_CAP && Number.isFinite(at) && now - at > TOMBSTONE_KEEP_MS) {
+                fs.rmSync(file, { force: true });
+                purged += 1;
+              }
+              continue;
+            }
             // 旧单体文件残留：交给迁移处理，这里不当作条目解析
             if (Array.isArray((raw as MemoryDoc).entries)) continue;
             if (typeof raw.content !== 'string' || !raw.content.trim()) continue;
@@ -325,6 +351,24 @@ export class MemoryStore {
     this.loadHits();
   }
 
+  private signature(): string {
+    return this.doc.entries.map((e) => `${e.id}@${e.updatedAt}@${e.archived ? 1 : 0}`).join('|');
+  }
+
+  /** git pull / 切分支后从磁盘重读；条目有变化才广播，返回是否变化 */
+  reloadFromDisk(): boolean {
+    if (!this.dir) return false;
+    const before = this.signature();
+    const uses = new Map(this.doc.entries.map((e) => [e.id, e.uses]));
+    this.tokenCache.clear();
+    this.load();
+    // 命中计数延迟落盘，重读时保留内存里更大的值
+    for (const e of this.doc.entries) e.uses = Math.max(e.uses, uses.get(e.id) || 0);
+    const changed = before !== this.signature() || this.healed > 0;
+    if (changed) this._onChange.fire();
+    return changed;
+  }
+
   /** 原子写入 JSON（tmp + rename），避免多终端/崩溃时出现半截文件 */
   private writeJsonAtomic(file: string, data: string): void {
     const tmp = `${file}.${process.pid}.tmp`;
@@ -337,7 +381,7 @@ export class MemoryStore {
     if (!this.dir) return;
     try {
       fs.mkdirSync(this.dir, { recursive: true });
-      this.writeJsonAtomic(path.join(this.dir, `${entry.id}.json`), JSON.stringify(entry, null, 2));
+      this.writeJsonAtomic(path.join(this.dir, `${entry.id}.json`), stringifyEntry(entry));
     } catch (err) {
       void vscode.window.showErrorMessage(`游梦鱼·长记忆: 写入记忆文件失败（${String(err)}）`);
       return;
@@ -544,12 +588,15 @@ export class MemoryStore {
         this.persistEntry(e, false);
       }
     }
+    // 删除写墓碑而不是删文件：别的终端同时改了这条时，Git 走合并驱动而不是 modify/delete 冲突
     if (this.dir) {
+      const at = new Date().toISOString();
       for (const id of kill) {
         try {
-          fs.rmSync(path.join(this.dir, `${id}.json`), { force: true });
+          const file = path.join(this.dir, `${id}.json`);
+          if (fs.existsSync(file)) this.writeJsonAtomic(file, stringifyEntry(makeTombstone(id, at)));
         } catch {
-          /* 文件删不掉不影响内存态 */
+          /* 文件写不了不影响内存态 */
         }
       }
     }

@@ -11,6 +11,7 @@ import type { MemoryStore } from './store';
 import { disposableMemoryIds } from './agent-learn';
 import {
   draftCommitMessage,
+  LEGACY_LOCAL_FILES,
   mergeCommitDraft,
   parseGitStatus,
   planTwin,
@@ -83,6 +84,10 @@ export function startTwinRuntime(
         fs.mkdirSync(path.dirname(abs), { recursive: true });
         fs.writeFileSync(abs, file.content, 'utf8');
         changed += 1;
+      }
+      for (const rel of LEGACY_LOCAL_FILES) {
+        const abs = path.join(root, rel);
+        if (fs.existsSync(abs)) fs.rmSync(abs, { force: true });
       }
       for (const mem of plan.memories) {
         if (upsertKind(store, mem)) changed += 1;

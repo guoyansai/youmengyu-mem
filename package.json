@@ -2,7 +2,7 @@
   "name": "youmengyu-mem",
   "displayName": "游梦鱼·长记忆 (AI Memory for Git Repos)",
   "description": "给每个 Git 仓库一份可长期积累、可注入 AI 编程助手的本地长记忆。安装后在本仓库内接管数字人的日常编程辅助：记住对话、强化规则、注入守则与焦点、对照代码风格、写开工简报和叙事、起草提交说明。",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "publisher": "youmengyu-mem",
   "license": "MIT",
   "icon": "media/icon.png",
@@ -256,6 +256,11 @@
           "type": "boolean",
           "default": true,
           "description": "安装后在当前仓库内接管数字人的日常编程辅助：播种身份与目标（已有文件不覆盖）、对照源码写风格、写开工简报和叙事、把守则与当前焦点注入长记忆，并归档正文完全相同的重复条目。关闭则不再自动跑这一拍"
+        },
+        "aimemory.gitMergeDriver": {
+          "type": "boolean",
+          "default": true,
+          "description": "多用户多终端 Git 同步防冲突：在本仓 .git/config 注册记忆合并驱动（记忆条目按字段三方合并、AGENTS.md 生成块不参与文本合并），并补 .youmengyu/.gitignore 与 .gitattributes。只改本机 git 配置，不执行提交"
         },
         "aimemory.youmengyuRoot": {
           "type": "string",

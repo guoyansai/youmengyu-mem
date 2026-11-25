@@ -1,0 +1,35 @@
+{
+  "id": "1f5f6fb82dcb",
+  "title": "对话·因为记忆更改需要git到仓库上 为了避免不同用户和不同终端拉取同步git",
+  "content": "会话 41033fdf-3029-404c-8942-453e02c2feee\n用户（1 轮）：\n- 因为记忆更改需要git到仓库上 为了避免不同用户和不同终端拉取同步git产生记忆文件上的冲突，请对插件记忆文件调整规划，确保不会出现不同用户不同终端git同步时产生冲突问题。参考成熟做法结合本项目优化解决\n助手收尾：多用户、多终端 git 同步记忆时的冲突问题已经修好。我用两个真实克隆做了模拟：两边同时改同一条记忆、一边删除另一边修改、两边都重新生成 `AGENTS.md` 注入块、两边都往 `CHANGELOG.md` 追加内容。`git pull` 没有冲突，两边双向同步后文件字节完全一致。全量 `asaitest` 99/99 通过，其中新增的 8 个用例在 `.youmengyu/test/unit/git-sync.test.mjs`。我没有执行 add、commit 或 push。 **冲突来源和处理方式**（参考 git-lfs 的驱动注册、`.idea/.gitignore` 的目录内忽略规则，以及 CRDT 的字段级合并与墓碑删除）： | 冲突来源 | 处理方式 | |---|---| | 每台机器的运…",
+  "tags": [
+    "workflow"
+  ],
+  "importance": 2,
+  "createdAt": "2026-11-25T08:59:41.895Z",
+  "updatedAt": "2026-11-25T08:59:41.895Z",
+  "source": "agent:41033fdf-3029-404c-8942-453e02c2feee",
+  "uses": 0,
+  "space": "agent",
+  "facts": [
+    "会话 41033fdf-3029-404c-8942-453e02c2feee",
+    "用户（1 轮）：",
+    "因为记忆更改需要git到仓库上 为了避免不同用户和不同终端拉取同步git产生记忆文件上的冲突，请对插件记忆文件调整规划，确保不会出现不同用户不同终端git同步时产生冲突问题。",
+    "参考成熟做法结合本项目优化解决",
+    "助手收尾：多用户、多终端 git 同步记忆时的冲突问题已经修好。",
+    "我用两个真实克隆做了模拟：两边同时改同一条记忆、一边删除另一边修改、两边都重新生成 `AGENTS.md` 注入块、两边都往 `CHANGELOG.md` 追加内容。",
+    "`git pull` 没有冲突，两边双向同步后文件字节完全一致。",
+    "全量 `asaitest` 99/99 通过，其中新增的 8 个用例在 `.youmengyu/test/unit/git-sync.test.mjs`。"
+  ],
+  "metadata": {
+    "by": "agent-learn",
+    "kind": "session",
+    "inject": "skip",
+    "session": "41033fdf-3029-404c-8942-453e02c2feee",
+    "turns": "24"
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": []
+}

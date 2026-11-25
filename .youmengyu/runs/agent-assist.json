@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "at": "2026-11-25T07:41:12.279Z",
+  "at": "2026-11-25T09:14:12.435Z",
   "host": "cursor",
   "cwd": "D:/Web/aicodingmem",
-  "conversationId": "89cde04f-a1ed-493c-8a03-4f8504706ad4",
-  "promptFp": "9a23fe8b965d",
+  "conversationId": "41033fdf-3029-404c-8942-453e02c2feee",
+  "promptFp": "625c9f6846ae",
   "intent": "notes",
   "confidence": 0.88,
   "engine": "keyword-stub",
@@ -36,16 +36,7 @@
     "mem_review"
   ],
   "evidenceLine": "",
-  "evidence": [
-    {
-      "kind": "digest",
-      "text": "--> ## 数字人记忆摘要（自动维护，勿手改 · 详情见大脑仓库 memory/） ### 用户画像 - 我的家：通讯必须走通讯插件配置的地址，不要在功能里另开通道。 - 操作台·AI 对话默认用数字人自带种子 youmengyu-model（约12MB）；模型能做的事（日程/口算/本地记忆/本仓文档/寒暄）不再走 Skill 或 MCP，使用即训练。改…"
-    },
-    {
-      "kind": "playbook",
-      "text": "记忆标签的页面中已经有记忆的管理功能，管理标签里面的记忆管理和这个重复，请去掉合并到这个记忆标签里面既可"
-    }
-  ],
+  "evidence": [],
   "note": "",
   "briefing": "【独立模型】notes 0.88\n翻记忆：独立模型当场做，禁止 mem_recall / long-memory。\n先：npm run cmd -- twin:model · 独立模型 notes\n禁：mem_recall · long-memory · 整篇 collection · 编造记忆 · mem_context · mem_review"
 }

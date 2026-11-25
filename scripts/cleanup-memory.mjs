@@ -145,6 +145,7 @@ const loadErrors = [];
 for (const f of files) {
   try {
     const raw = JSON.parse(readFileSync(join(STORAGE_DIR, f), 'utf-8'));
+    if (raw && raw.deleted === true) continue; // 删除墓碑，等各终端同步后由插件清理
     entries.push({ ...raw, _file: f });
   } catch (e) {
     loadErrors.push({ file: f, error: String(e.message || e) });
@@ -231,8 +232,10 @@ if (apply) {
     const fpath = join(STORAGE_DIR, e._file);
     try {
       const size = existsSync(fpath) ? readFileSync(fpath).length : 0;
-      rmSync(fpath, { force: true });
-      bytesSaved += size;
+      // 写墓碑而不是删文件：别的终端同时改了这条时不会变成 Git 的 modify/delete 冲突
+      const tomb = { id: e.id || e._file.replace(/\.json$/, ''), deleted: true, deletedAt: new Date().toISOString() };
+      writeFileSync(fpath, `${JSON.stringify(tomb, null, 2)}\n`, 'utf-8');
+      bytesSaved += Math.max(0, size - JSON.stringify(tomb, null, 2).length);
       ok(`  删 ${e._file} · ${e.title.slice(0, 40)}`);
     } catch (err) {
       fail(`  删除失败 ${e._file}: ${err.message}`);

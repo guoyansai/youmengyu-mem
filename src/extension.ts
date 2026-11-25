@@ -7,6 +7,7 @@ import { AiSettingsController } from './ai/settings-panel';
 import { startAgentMemory } from './agent-loop';
 import { startChangelogSync } from './changelog-sync';
 import { startTwinRuntime } from './twin-loop';
+import { ensureGitSync } from './git-sync';
 import { generateInject } from './inject';
 import { MemoryPanel } from './panel';
 import { MemoryStore } from './store';
@@ -204,6 +205,47 @@ function activateImpl(context: vscode.ExtensionContext, out: vscode.OutputChanne
     const text = organizer.captureActiveEditor();
     panel.note(text, text.indexOf('没有') === 0 ? 'warn' : undefined);
   });
+
+  // 多用户多终端 Git 同步：运行态不入库、记忆走字段级合并驱动，拉取后自动重读并刷新注入块
+  if (store.ready && store.workspaceRoot) {
+    const root = store.workspaceRoot;
+    const cfg = vscode.workspace.getConfiguration('aimemory');
+    try {
+      const r = ensureGitSync({
+        root,
+        storageRel: store.storageFileRel,
+        injectTargets: cfg.get<string[]>('injectTargets', ['AGENTS.md']),
+        driverSrcDir: path.join(context.extensionPath, 'dist'),
+        registerDriver: cfg.get<boolean>('gitMergeDriver', true),
+      });
+      if (r.changed.length || r.driver === 'registered') {
+        out.appendLine(`[git-sync] 规则 ${r.changed.join('、') || '无变化'}，合并驱动 ${r.driver}`);
+      }
+    } catch (err) {
+      out.appendLine(`[git-sync] 初始化失败: ${String(err)}`);
+    }
+    if (store.healed) out.appendLine(`[git-sync] 已按字段合并修复 ${store.healed} 个带冲突标记的记忆文件`);
+    let reloadTimer: ReturnType<typeof setTimeout> | undefined;
+    const watcher = vscode.workspace.createFileSystemWatcher(
+      new vscode.RelativePattern(root, `${store.storageFileRel}/*.json`)
+    );
+    const onDisk = () => {
+      if (reloadTimer) clearTimeout(reloadTimer);
+      reloadTimer = setTimeout(() => {
+        reloadTimer = undefined;
+        if (!store.reloadFromDisk()) return;
+        if (store.healed) out.appendLine(`[git-sync] 已按字段合并修复 ${store.healed} 个带冲突标记的记忆文件`);
+        panel.refresh();
+        if (vscode.workspace.getConfiguration('aimemory').get<boolean>('autoInject', true)) {
+          void generateInject(store, { silent: true });
+        }
+      }, 1500);
+    };
+    watcher.onDidCreate(onDisk);
+    watcher.onDidChange(onDisk);
+    watcher.onDidDelete(onDisk);
+    context.subscriptions.push(watcher, { dispose: () => reloadTimer && clearTimeout(reloadTimer) });
+  }
 
   // 安装即记住当前 Agent 对话，并把长记忆写进 AGENTS.md，助手开工就能用上项目规则
   if (store.ready) {

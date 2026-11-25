@@ -1,15 +1,15 @@
 {
-  "title": "查修BUG：Cursor 打不开记忆面板；新功能：按小时写更新日志",
-  "summary": "查修BUG：Cursor 侧栏 webview 空白，改为编辑区打开同一面板并延迟重绘。新功能：按 git 用户写 CHANGELOG+用户名.md，CHANGELOG.md 保留完整日志，按小时分节，打包时标上版本号。",
-  "type": "查修BUG",
+  "title": "优化：记忆文件少写、不重复、每拍最多改两个",
+  "summary": "优化：对话里的过程句不再单独占文件；近重复并进已有条目；会话和规则有上限；每一拍最多改写 2 个记忆文件，同一会话 10 分钟内不反复改。",
+  "type": "优化",
   "files": [
-    "src/panel.ts",
-    "src/extension.ts",
-    "src/changelog-log.ts",
-    "src/changelog-sync.ts",
-    "scripts/stamp-changelog.mjs",
-    ".youmengyu/test/unit/panel-shell.test.mjs",
-    ".youmengyu/test/unit/changelog-hourly.test.mjs"
+    "src/agent-learn.ts",
+    "src/agent-loop.ts",
+    "src/twin-local.ts",
+    "src/twin-loop.ts",
+    "src/ai/organize.ts",
+    ".youmengyu/test/unit/agent-learn.test.mjs",
+    ".youmengyu/test/unit/twin-local.test.mjs"
   ],
-  "testCommand": "node --test .youmengyu/test/unit/panel-shell.test.mjs .youmengyu/test/unit/changelog-hourly.test.mjs"
+  "testCommand": "node --test .youmengyu/test/unit/agent-learn.test.mjs .youmengyu/test/unit/twin-local.test.mjs"
 }

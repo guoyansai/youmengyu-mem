@@ -176,7 +176,8 @@ export class MemoryOrganizer {
         return entry;
       }
       detailParts.push(`来源 ${sources.length} 个（${sources.map((s) => s.label).join('、')}）`);
-      const max = this.engine.prefs.maxAutoEntries;
+      // 自动记录每轮最多落 2 个新文件，避免一次刷出一批记忆
+      const max = Math.min(this.engine.prefs.maxAutoEntries, 2);
       const existing = this.digestEntries(60);
       for (const src of sources) {
         if (added >= max) break;
@@ -335,6 +336,7 @@ export class MemoryOrganizer {
     let applied = 0;
     const byId = new Map(this.store.entries.map((e) => [e.id, e]));
     for (const m of ops.merge ?? []) {
+      if (applied >= 2) break;
       const targets = (m.ids ?? []).map((id) => byId.get(id)).filter((e): e is NonNullable<typeof e> => Boolean(e) && !e!.pinned && e!.importance < 5);
       if (targets.length < 2 || !m.title || !m.content) continue;
       const r = this.store.add({
@@ -353,12 +355,14 @@ export class MemoryOrganizer {
       }
     }
     for (const a of ops.archive ?? []) {
+      if (applied >= 2) break;
       const e = byId.get(a.id);
       if (!e || e.pinned || e.importance >= 5 || e.archived) continue;
       this.store.archive(e.id, true);
       applied += 1;
     }
     for (const f of ops.facts ?? []) {
+      if (applied >= 2) break;
       const e = byId.get(f.id);
       if (!e || !Array.isArray(f.facts)) continue;
       const facts = f.facts.filter((x) => typeof x === 'string' && x.trim()).slice(0, 10);

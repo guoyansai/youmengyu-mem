@@ -2,7 +2,7 @@
   "name": "youmengyu-mem",
   "displayName": "游梦鱼·长记忆 (AI Memory for Git Repos)",
   "description": "给每个 Git 仓库一份可长期积累、可注入 AI 编程助手的本地长记忆。安装后在本仓库内接管数字人的日常编程辅助：记住对话、强化规则、注入守则与焦点、对照代码风格、写开工简报和叙事、起草提交说明。",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "publisher": "youmengyu-mem",
   "license": "MIT",
   "icon": "media/icon.png",

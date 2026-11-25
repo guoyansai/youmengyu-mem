@@ -10,10 +10,12 @@ import {
   agentTranscriptDir,
   collectTranscriptFiles,
   distillTurns,
+  LEARN_WRITE_BUDGET,
   planLearn,
   pickTranscriptBatch,
   parseTranscript,
   ruleKey,
+  takeLearnWrites,
   transcriptSettled,
   type ExistingMemory,
   type LearnAction,
@@ -24,8 +26,10 @@ import { generateInject } from './inject';
 import type { MemoryStore } from './store';
 import { DEFAULT_STORAGE_DIR } from './store';
 
-const BATCH = 8;
+const BATCH = 2;
 const POLL_MS = 20_000;
+const WRITE_GAP_MS = 10 * 60 * 1000;
+const HOT_MS = 2 * 60 * 1000;
 const MAX_READ = 1_500_000;
 
 export function startAgentMemory(
@@ -40,6 +44,7 @@ export function startAgentMemory(
   let stopped = false;
   let running = false;
   let announced = '';
+  let lastMutate = 0;
 
   const armWatch = (dir: string) => {
     if (watcher) return;
@@ -70,39 +75,67 @@ export function startAgentMemory(
       const files = collectTranscriptFiles(dir);
       const cursors = readCursors(cursorPath(store));
       const now = Date.now();
-      const batch = pickTranscriptBatch(files, cursors, BATCH, now);
+      const pool = now - lastMutate >= WRITE_GAP_MS ? files : files.filter((f) => now - f.mtimeMs <= HOT_MS);
+      const batch = pickTranscriptBatch(pool, cursors, BATCH, now);
       let changed = 0;
+      let budget = LEARN_WRITE_BUDGET;
+      let cursorDirty = false;
       for (const file of batch) {
+        if (budget <= 0) break;
         try {
           const raw = readTranscript(file.file, file.size);
           const turns = parseTranscript(raw);
           const settled = transcriptSettled(raw, file.mtimeMs, now);
-          const drafts = distillTurns(turns, file.sessionId, { includeSession: settled || turns.length === 0 });
           const prev = cursors[file.file] ?? { size: 0, mtimeMs: 0, sessionWritten: false, ruleKeys: [] };
+          if (!settled) continue;
+          if (!turns.length) {
+            cursors[file.file] = {
+              size: file.size,
+              mtimeMs: file.mtimeMs,
+              sessionWritten: true,
+              ruleKeys: prev.ruleKeys,
+            };
+            cursorDirty = true;
+            continue;
+          }
+          const drafts = distillTurns(turns, file.sessionId, { includeSession: true });
           const known = new Set(prev.ruleKeys);
           const fresh = drafts.filter((d) => d.kind === 'session' || !known.has(ruleKey(d.content)));
-          const actions = planLearn(fresh, snapshot(store));
-          changed += applyLearn(store, actions);
+          const sessionCooling = prev.sessionWritten && now - lastMutate < WRITE_GAP_MS;
+          const learnDrafts = sessionCooling ? fresh.filter((d) => d.kind !== 'session') : fresh;
+          const actions = planLearn(learnDrafts, snapshot(store));
+          const picked = takeLearnWrites(actions, budget);
+          changed += applyLearn(store, picked.taken);
+          budget -= picked.taken.filter((action) => action.op !== 'touch').length;
+          const done = new Set(picked.taken.map((action) => action.key));
           const ruleKeys = prev.ruleKeys.slice();
-          for (const d of fresh) {
-            if (d.kind !== 'rule') continue;
-            const k = ruleKey(d.content);
-            if (!ruleKeys.includes(k)) ruleKeys.push(k);
+          for (const draft of fresh) {
+            if (draft.kind !== 'rule') continue;
+            const key = ruleKey(draft.content);
+            if (!done.has(key) || ruleKeys.includes(key)) continue;
+            ruleKeys.push(key);
           }
-          cursors[file.file] = {
-            size: file.size,
-            mtimeMs: file.mtimeMs,
-            sessionWritten: settled || turns.length === 0,
-            ruleKeys: ruleKeys.slice(-40),
-          };
+          const wroteSession = picked.taken.some(
+            (action) => action.op === 'update-session' || (action.op === 'add' && action.draft.kind === 'session')
+          );
+          const sessionWritten = prev.sessionWritten || wroteSession || !fresh.some((d) => d.kind === 'session');
+          const hold =
+            picked.deferred.length > 0 || (sessionCooling && fresh.some((d) => d.kind === 'session') && !wroteSession);
+          cursors[file.file] = hold
+            ? { size: prev.size, mtimeMs: prev.mtimeMs, sessionWritten, ruleKeys: ruleKeys.slice(-40) }
+            : { size: file.size, mtimeMs: file.mtimeMs, sessionWritten: true, ruleKeys: ruleKeys.slice(-40) };
+          cursorDirty = true;
         } catch (err) {
           out?.(`[agent] 读取对话失败 ${file.sessionId}: ${String(err)}`);
         }
       }
-      if (batch.length) writeCursors(cursorPath(store), cursors);
-      if (changed > 0 && vscode.workspace.getConfiguration('aimemory').get<boolean>('autoInject', true)) {
-        await generateInject(store, { silent: true });
-        out?.(`[agent] 长记忆已更新 ${changed} 处，并写回注入块供 Agent 使用`);
+      if (cursorDirty) writeCursors(cursorPath(store), cursors);
+      if (changed > 0) {
+        lastMutate = Date.now();
+        if (vscode.workspace.getConfiguration('aimemory').get<boolean>('autoInject', true)) {
+          await generateInject(store, { silent: true });
+          out?.(`[agent] 长记忆已更新 ${changed} 处，并写回注入块供 Agent 使用`);
+        }
       }
     } catch (err) {
       out?.(`[agent] 对话记忆本轮失败: ${String(err)}`);

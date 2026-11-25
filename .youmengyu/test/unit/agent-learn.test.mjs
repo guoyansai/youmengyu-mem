@@ -21,6 +21,11 @@ const {
   pickTranscriptBatch,
   collectTranscriptFiles,
   ruleKey,
+  takeLearnWrites,
+  disposableMemoryIds,
+  isDurableRule,
+  MAX_SESSION_FILES,
+  LEARN_WRITE_BUDGET,
 } = await import(distUrl);
 
 const read = (rel) => fs.readFileSync(path.join(repoRoot, rel), 'utf8');
@@ -178,7 +183,126 @@ test('能扫到子目录里的 jsonl', () => {
   }
 });
 
-test('激活时接上自动记忆，注入与对话监听默认开启', () => {
+test('过程句和系统噪声不单独占记忆文件', () => {
+  const drafts = distillTurns(
+    [
+      { role: 'user', text: '我先读开工助手和本次查修约定，再把统计修通。不能一次改很多文件。' },
+      { role: 'assistant', text: '先看开工助手里的约定和验收，再开始改。' },
+      { role: 'user', text: 'Briefly inform the user about the task result and perform any follow-up actions.' },
+    ],
+    'sess-noise'
+  );
+  const rules = drafts.filter((d) => d.kind === 'rule').map((d) => d.content);
+  assert.deepEqual(rules, ['不能一次改很多文件。']);
+  assert.equal(isDurableRule('我先读开工助手和本次查修约定'), false);
+  assert.equal(isDurableRule('不能存储太多文件，也不能一次改很多'), true);
+  const session = drafts.find((d) => d.kind === 'session');
+  assert.equal(session.content.includes('Briefly inform'), false);
+});
+
+test('已有句子被包含时并进原条目，不再新建文件', () => {
+  const again = {
+    kind: 'rule',
+    title: '不能一次改很多文件',
+    content: '不能一次改很多文件，重复的记忆要并进去',
+    tags: ['preference'],
+    importance: 4,
+    source: 'agent:s3',
+    space: 'default',
+    metadata: { kind: 'rule' },
+  };
+  const existing = [
+    {
+      id: 'e9',
+      title: '不能一次改很多文件',
+      content: '不能一次改很多文件，重复的记忆要并进去，有用的才留',
+      importance: 4,
+      metadata: { kind: 'rule' },
+    },
+  ];
+  const actions = planLearn([again], existing);
+  assert.equal(actions.length, 1);
+  assert.equal(actions[0].op, 'strengthen');
+  assert.equal(actions[0].id, 'e9');
+});
+
+test('会话和规则都有上限，一拍最多改两个文件', () => {
+  const sessions = Array.from({ length: MAX_SESSION_FILES }, (_, i) => ({
+    id: `s${i}`,
+    title: `对话${i}`,
+    content: `会话 ${i}`,
+    importance: 2,
+    source: `agent:old-${i}`,
+    metadata: { kind: 'session', inject: 'skip' },
+  }));
+  const draft = {
+    kind: 'session',
+    title: '对话·新的',
+    content: '会话 new\n用户（1 轮）：\n- 必须留下这条新会话',
+    tags: ['workflow'],
+    importance: 2,
+    source: 'agent:new',
+    space: 'agent',
+    metadata: { kind: 'session', inject: 'skip' },
+  };
+  assert.equal(planLearn([draft], sessions).length, 0);
+  const rule = {
+    kind: 'rule',
+    title: '必须留下这条',
+    content: '必须留下这条有用的约定',
+    tags: ['workflow'],
+    importance: 4,
+    source: 'agent:new',
+    space: 'default',
+    metadata: { kind: 'rule' },
+  };
+  const sessionAdd = { op: 'add', draft, key: 'session:agent:new' };
+  const ruleAdd = { op: 'add', draft: rule, key: 'rule' };
+  const extra = { op: 'update-session', id: 's0', draft, key: 'session:agent:old-0' };
+  const picked = takeLearnWrites([sessionAdd, ruleAdd, extra], LEARN_WRITE_BUDGET);
+  assert.equal(picked.taken.filter((a) => a.op !== 'touch').length, 2);
+  assert.equal(picked.taken[0].op, 'add');
+  assert.equal(picked.taken[0].draft.kind, 'rule');
+  assert.equal(picked.deferred.length, 1);
+  assert.equal(picked.deferred[0].op, 'update-session');
+});
+
+test('过程句和超额旧会话每拍只退役一小批', () => {
+  const entries = [
+    {
+      id: 'noise',
+      title: '先看',
+      content: '我先读开工助手和本次查修约定，再对着列表实现。',
+      importance: 3,
+      metadata: { by: 'agent-learn', kind: 'rule' },
+      updatedAt: '2026-11-25T00:00:00.000Z',
+    },
+    {
+      id: 'keep',
+      title: '禁止',
+      content: '禁止把密钥写进仓库',
+      importance: 4,
+      metadata: { by: 'agent-learn', kind: 'rule' },
+      updatedAt: '2026-11-25T00:00:00.000Z',
+    },
+  ];
+  for (let i = 0; i < MAX_SESSION_FILES + 2; i += 1) {
+    entries.push({
+      id: `sess-${i}`,
+      title: `对话${i}`,
+      content: `会话 ${i}`,
+      importance: 2,
+      metadata: { by: 'agent-learn', kind: 'session', inject: 'skip' },
+      updatedAt: `2026-11-2${i < 10 ? 0 : 1}T00:00:0${i % 10}.000Z`,
+    });
+  }
+  const ids = disposableMemoryIds(entries, 2);
+  assert.equal(ids.length, 2);
+  assert.equal(ids[0], 'noise');
+  assert.equal(ids.includes('keep'), false);
+});
+
+test('激活时接上自动记忆，未写完不落盘，写过的会话不会紧接着再改', () => {
   const ext = read('src/extension.ts');
   const pkg = JSON.parse(read('package.json'));
   const props = pkg.contributes.configuration.properties;
@@ -186,6 +310,9 @@ test('激活时接上自动记忆，注入与对话监听默认开启', () => {
   assert.match(ext, /generateInject\(store, \{ silent: true \}\)/);
   assert.equal(props['aimemory.autoInject'].default, true);
   assert.equal(props['aimemory.autoAgentMemory'].default, true);
+  assert.match(read('src/agent-loop.ts'), /if \(!settled\) continue/);
+  assert.match(read('src/agent-loop.ts'), /LEARN_WRITE_BUDGET/);
+  assert.match(read('src/agent-loop.ts'), /sessionCooling/);
   assert.match(read('src/store.ts'), /countsForInject/);
   assert.match(read('src/ai/organize.ts'), /get<boolean>\('autoInject', true\)/);
   assert.match(read('README.md'), /记住当前 Agent 的全部对话/);

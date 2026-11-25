@@ -11,11 +11,11 @@
 - 核心模块（被依赖最多）：
 - src/store（被引 7）
 - src/types（被引 5）
+- src/agent-learn（被引 4）
 - src/inject（被引 4）
-- src/agent-learn（被引 3）
 
 ### 高频改动
-- `AGENTS.md` · `src/panel.ts` · `src/extension.ts` · `package.json` · `.youmengyu/test/unit/panel-shell.test.mjs` · `src/agent-learn.ts`
+- `AGENTS.md` · `src/panel.ts` · `src/extension.ts` · `media/panel.js` · `package.json` · `.youmengyu/test/unit/panel-shell.test.mjs`
 
 ### 常用命令
 - `git 用户名是「游梦鱼」，所以个人文件是 `CHANGELOG+游梦鱼.md…`

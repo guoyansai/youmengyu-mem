@@ -80,6 +80,19 @@ test('正文相同只留置顶的那份', () => {
     { id: 'c', content: '另一句', pinned: false, importance: 3, uses: 0, updatedAt: '2026-01-01', versionCount: 0 },
   ]);
   assert.deepEqual(ids, ['b']);
+  const many = [];
+  for (let i = 0; i < 5; i += 1) {
+    many.push({
+      id: `d${i}`,
+      content: '完全相同的一句',
+      pinned: i === 0,
+      importance: 3,
+      uses: 0,
+      updatedAt: `2026-01-0${i + 1}`,
+      versionCount: 0,
+    });
+  }
+  assert.equal(exactArchiveIds(many).length, 2);
 });
 
 test('提交说明按路径归类，已有草稿只追加', () => {

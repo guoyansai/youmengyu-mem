@@ -8,6 +8,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { generateInject } from './inject';
 import type { MemoryStore } from './store';
+import { disposableMemoryIds } from './agent-learn';
 import {
   draftCommitMessage,
   mergeCommitDraft,
@@ -15,6 +16,8 @@ import {
   planTwin,
   type TwinMemory,
 } from './twin-local';
+
+const RETIRE_CAP = 2;
 
 const BEAT_MS = 30 * 60 * 1000;
 const START_DELAY_MS = 4000;
@@ -84,7 +87,7 @@ export function startTwinRuntime(
       for (const mem of plan.memories) {
         if (upsertKind(store, mem)) changed += 1;
       }
-      for (const id of plan.archiveIds) {
+      for (const id of retireIds(plan.archiveIds, store)) {
         store.archive(id, true);
         changed += 1;
       }
@@ -138,6 +141,32 @@ export function startTwinRuntime(
     rebind: () => beat(false),
     draftCommit,
   };
+}
+
+function retireIds(archiveIds: string[], store: MemoryStore): string[] {
+  const ids: string[] = [];
+  const push = (id: string) => {
+    if (!id || ids.length >= RETIRE_CAP || ids.includes(id)) return;
+    ids.push(id);
+  };
+  for (const id of archiveIds) push(id);
+  if (ids.length >= RETIRE_CAP) return ids;
+  const extra = disposableMemoryIds(
+    store.entries.map((entry) => ({
+      id: entry.id,
+      title: entry.title,
+      content: entry.content,
+      importance: entry.importance,
+      pinned: entry.pinned,
+      archived: entry.archived,
+      source: entry.source,
+      metadata: entry.metadata,
+      updatedAt: entry.updatedAt,
+    })),
+    RETIRE_CAP
+  );
+  for (const id of extra) push(id);
+  return ids;
 }
 
 function upsertKind(store: MemoryStore, mem: TwinMemory): boolean {

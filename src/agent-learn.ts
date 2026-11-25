@@ -8,8 +8,16 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const RULE_CUE = /必须|禁止|不要|勿|约定|一律|务必|规则|偏好|记住|不能|不允许|红线|最小改动/;
-const LESSON_CUE = /教训|根因|结论|约定/;
+const RULE_CUE = /必须|禁止|不要|勿|一律|务必|不能|不允许|红线|偏好|记住/;
+const LESSON_CUE = /教训|根因|结论/;
+const PROGRESS_CUE = /^(我|咱们|我们)?(先看|先读|先摸|接下来|下面|开始|让我|我会|我先)/;
+const NOISE_CUE = /briefly inform the user|perform any follow-up actions/i;
+
+/** 同时在写的记忆文件上限。会话留档和规则分开计数，多出来的不再新建文件。 */
+export const MAX_SESSION_FILES = 8;
+export const MAX_RULE_FILES = 24;
+/** 每一拍最多改写这么多个记忆文件（新建、改写、提高重要度都算）。 */
+export const LEARN_WRITE_BUDGET = 2;
 
 export type Turn = { role: 'user' | 'assistant'; text: string };
 
@@ -36,10 +44,12 @@ export type ExistingMemory = {
 };
 
 export type LearnAction =
-  | { op: 'add'; draft: LearnDraft }
-  | { op: 'update-session'; id: string; draft: LearnDraft }
-  | { op: 'strengthen'; id: string; importance: number }
-  | { op: 'touch'; id: string };
+  | { op: 'add'; draft: LearnDraft; key: string }
+  | { op: 'update-session'; id: string; draft: LearnDraft; key: string }
+  | { op: 'strengthen'; id: string; importance: number; key: string }
+  | { op: 'touch'; id: string; key: string };
+
+export type RetireRef = ExistingMemory & { updatedAt?: string };
 
 export type TranscriptFile = {
   file: string;
@@ -116,7 +126,8 @@ export function distillTurns(turns: Turn[], sessionId: string, opts?: { includeS
   let userN = 0;
   let assistantN = 0;
   for (const turn of turns) {
-    const limit = turn.role === 'user' ? 4 : 2;
+    if (turn.role === 'assistant' && userN > 0) continue;
+    const limit = 1;
     const got = turn.role === 'user' ? userN : assistantN;
     if (got >= limit) continue;
     for (const sent of sentences(turn.text)) {
@@ -137,39 +148,104 @@ export function distillTurns(turns: Turn[], sessionId: string, opts?: { includeS
 export function planLearn(drafts: LearnDraft[], existing: ExistingMemory[]): LearnAction[] {
   const actions: LearnAction[] = [];
   const strengthened = new Set<string>();
+  let sessions = existing.filter((e) => !e.archived && e.metadata?.kind === 'session').length;
+  let rules = existing.filter((e) => !e.archived && e.metadata?.kind === 'rule').length;
   for (const draft of drafts) {
+    const key = actionKey(draft);
     if (draft.kind === 'session') {
       const prev = existing.find(
         (e) => e.source === draft.source && e.metadata?.kind === 'session' && !e.archived
       );
-      if (!prev) actions.push({ op: 'add', draft });
-      else if (normText(prev.content) !== normText(draft.content) || prev.title !== draft.title) {
-        actions.push({ op: 'update-session', id: prev.id, draft });
+      if (!prev) {
+        if (sessions >= MAX_SESSION_FILES) continue;
+        sessions += 1;
+        actions.push({ op: 'add', draft, key });
+      } else if (normText(prev.content) !== normText(draft.content) || prev.title !== draft.title) {
+        actions.push({ op: 'update-session', id: prev.id, draft, key });
       }
-      continue;
-    }
-    const exact = existing.find((e) => !e.archived && e.metadata?.inject !== 'skip' && normText(e.content) === normText(draft.content));
-    if (exact) {
-      actions.push(reinforce(exact, strengthened));
       continue;
     }
     let best: ExistingMemory | undefined;
     let bestScore = 0;
     for (const e of existing) {
       if (e.archived || e.metadata?.inject === 'skip' || e.metadata?.kind === 'session') continue;
-      const score = similarity(draft.content, `${e.title}\n${e.content}`);
+      const score = memoryScore(draft.content, `${e.title}\n${e.content}`);
       if (score >= 0.62 && score > bestScore) {
         best = e;
         bestScore = score;
       }
     }
     if (best) {
-      actions.push(reinforce(best, strengthened));
+      const hit = reinforce(best, strengthened);
+      if (hit.op === 'touch') actions.push({ op: 'touch', id: hit.id, key });
+      else actions.push({ op: 'strengthen', id: hit.id, importance: hit.importance ?? best.importance, key });
       continue;
     }
-    actions.push({ op: 'add', draft });
+    if (rules >= MAX_RULE_FILES) continue;
+    rules += 1;
+    actions.push({ op: 'add', draft, key });
   }
   return actions;
+}
+
+/**
+ * 本拍只落预算内的文件改写。命中计数不占预算。
+ * 优先留下规则，其次才改会话留档，避免一轮刷出很多文件。
+ */
+export function takeLearnWrites(
+  actions: LearnAction[],
+  budget = LEARN_WRITE_BUDGET
+): { taken: LearnAction[]; deferred: LearnAction[] } {
+  const touches: LearnAction[] = [];
+  const writes: { action: LearnAction; index: number }[] = [];
+  actions.forEach((action, index) => {
+    if (action.op === 'touch') touches.push(action);
+    else writes.push({ action, index });
+  });
+  const rank = (action: LearnAction) => {
+    if (action.op === 'add' && action.draft.kind === 'rule') return 0;
+    if (action.op === 'strengthen') return 1;
+    if (action.op === 'add') return 2;
+    return 3;
+  };
+  writes.sort((a, b) => rank(a.action) - rank(b.action) || a.index - b.index);
+  const taken: LearnAction[] = [];
+  const deferred: LearnAction[] = [];
+  for (const row of writes) {
+    if (taken.length < budget) taken.push(row.action);
+    else deferred.push(row.action);
+  }
+  taken.push(...touches);
+  return { taken, deferred };
+}
+
+/**
+ * 每拍最多指出 limit 条可退役的文件：先是不像规则的过程句，再是超出上限的旧会话。
+ * 置顶和已经重复强化到 P5 的不退役。
+ */
+export function disposableMemoryIds(entries: RetireRef[], limit: number): string[] {
+  const ids: string[] = [];
+  const push = (id: string) => {
+    if (!id || ids.length >= limit || ids.includes(id)) return;
+    ids.push(id);
+  };
+  for (const entry of entries) {
+    if (entry.archived || entry.pinned || entry.importance >= 5) continue;
+    if (entry.metadata?.by !== 'agent-learn' || entry.metadata?.kind !== 'rule') continue;
+    if (isDurableRule(entry.content)) continue;
+    push(entry.id);
+  }
+  const sessions = entries.filter((e) => !e.archived && !e.pinned && e.metadata?.kind === 'session');
+  if (sessions.length > MAX_SESSION_FILES) {
+    const oldest = [...sessions].sort((a, b) => String(a.updatedAt || '').localeCompare(String(b.updatedAt || '')));
+    for (const entry of oldest.slice(0, sessions.length - MAX_SESSION_FILES)) push(entry.id);
+  }
+  return ids;
+}
+
+/** 这句话还值得单独占一个记忆文件 */
+export function isDurableRule(text: string): boolean {
+  return keepSentence(text, 'user') || keepSentence(text, 'assistant');
 }
 
 /** 本轮助手回合已经写完，或文件安静超过 45 秒，才落会话摘要，避免生成过程中反复改文件 */
@@ -231,14 +307,21 @@ export function collectTranscriptFiles(rootDir: string): TranscriptFile[] {
   return out;
 }
 
-function reinforce(entry: ExistingMemory, strengthened: Set<string>): LearnAction {
+function reinforce(entry: ExistingMemory, strengthened: Set<string>): { op: 'touch' | 'strengthen'; id: string; importance?: number } {
   if (strengthened.has(entry.id) || entry.importance >= 5) return { op: 'touch', id: entry.id };
   strengthened.add(entry.id);
   return { op: 'strengthen', id: entry.id, importance: Math.min(5, entry.importance + 1) };
 }
 
+function actionKey(draft: LearnDraft): string {
+  return draft.kind === 'session' ? `session:${draft.source}` : ruleKey(draft.content);
+}
+
 function sessionDraft(turns: Turn[], sessionId: string): LearnDraft {
-  const userLines = turns.filter((t) => t.role === 'user').map((t) => oneLine(t.text, 180));
+  const userLines = turns
+    .filter((t) => t.role === 'user')
+    .map((t) => oneLine(t.text, 180))
+    .filter((line) => line && !NOISE_CUE.test(line));
   const lastAssistant = [...turns].reverse().find((t) => t.role === 'assistant');
   const close = lastAssistant ? oneLine(lastAssistant.text, 360) : '';
   const titleSrc = userLines[0] || '未命名对话';
@@ -287,6 +370,7 @@ function keepSentence(sent: string, role: 'user' | 'assistant'): boolean {
   if (sent.length < 8 || sent.length > 180) return false;
   if (/^[|`]/.test(sent)) return false;
   if (/[?？]\s*$/.test(sent)) return false;
+  if (NOISE_CUE.test(sent) || PROGRESS_CUE.test(sent)) return false;
   if (role === 'user') return RULE_CUE.test(sent);
   return LESSON_CUE.test(sent) && RULE_CUE.test(sent);
 }
@@ -343,6 +427,17 @@ function tokenize(text: string): string[] {
     for (let i = 0; i < chunk.length - 1; i += 1) grams.push(chunk.slice(i, i + 2));
   }
   return [...latin, ...grams];
+}
+
+function memoryScore(draft: string, existing: string): number {
+  const left = normText(draft);
+  const right = normText(existing);
+  if (!left || !right) return 0;
+  if (left === right) return 1;
+  const short = left.length <= right.length ? left : right;
+  const long = left.length <= right.length ? right : left;
+  if (short.length >= 12 && long.includes(short)) return 0.95;
+  return similarity(draft, existing);
 }
 
 function similarity(a: string, b: string): number {

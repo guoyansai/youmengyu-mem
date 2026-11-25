@@ -229,8 +229,8 @@ export function mergeCommitDraft(existing: string, draft: string): string {
   return `${cur}\n\n${next}\n`;
 }
 
-/** 正文归一化后完全相同的条目只留最优一份，其余给出归档 id */
-export function exactArchiveIds(entries: TwinEntryRef[], cap = 20): string[] {
+/** 正文归一化后完全相同的条目只留最优一份。每拍最多归档 2 条，避免一次改太多文件 */
+export function exactArchiveIds(entries: TwinEntryRef[], cap = 2): string[] {
   const map = new Map<string, TwinEntryRef[]>();
   for (const entry of entries) {
     if (entry.archived) continue;

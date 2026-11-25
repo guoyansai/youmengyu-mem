@@ -1,0 +1,47 @@
+{
+  "version": 2,
+  "at": "2026-11-25T03:29:13.971Z",
+  "host": "cursor",
+  "cwd": "D:/Web/aicodingmem",
+  "conversationId": "9b63ce34-f2c9-4854-bf7e-a0f251ab3df8",
+  "promptFp": "896b43c07825",
+  "intent": "notes",
+  "confidence": 0.88,
+  "engine": "keyword-stub",
+  "actor": "youmengyu-model",
+  "route": "LOCAL",
+  "tokenSaved": true,
+  "local": true,
+  "lane": "answer",
+  "localReply": "",
+  "handled": false,
+  "first": [
+    "npm run cmd -- twin:model",
+    "独立模型 notes"
+  ],
+  "skip": [
+    "mem_recall",
+    "long-memory",
+    "整篇 collection",
+    "编造记忆",
+    "mem_context",
+    "mem_review"
+  ],
+  "blockSkills": [
+    "long-memory"
+  ],
+  "blockMcp": [
+    "mem_recall",
+    "mem_context",
+    "mem_review"
+  ],
+  "evidenceLine": "",
+  "evidence": [
+    {
+      "kind": "playbook",
+      "text": "新功能：整理进度弹窗可缩小展开，并显示当前正在使用的模型"
+    }
+  ],
+  "note": "",
+  "briefing": "【独立模型】notes 0.88\n翻记忆：独立模型当场做，禁止 mem_recall / long-memory。\n先：npm run cmd -- twin:model · 独立模型 notes\n禁：mem_recall · long-memory · 整篇 collection · 编造记忆 · mem_context · mem_review"
+}

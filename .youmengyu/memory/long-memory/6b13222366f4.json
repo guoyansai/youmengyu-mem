@@ -1,0 +1,39 @@
+{
+  "id": "6b13222366f4",
+  "title": "复用工作室树/脚本切换时，模板 fs.write 要包一层 flush，否则树盖层里的改动保存时仍是旧脚本。",
+  "content": "复用工作室树/脚本切换时，模板 fs.write 要包一层 flush，否则树盖层里的改动保存时仍是旧脚本。",
+  "tags": [
+    "lesson"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-24T10:12:12.400Z",
+  "updatedAt": "2026-11-25T03:02:36.072Z",
+  "source": ".youmengyu/memory/semantic/lessons.md",
+  "uses": 0,
+  "pinned": false,
+  "space": "数字人",
+  "facts": [
+    "复用工作室树/脚本切换时，模板 fs.write 要包一层 flush，否则树盖层里的改动保存时仍是旧脚本。"
+  ],
+  "metadata": {
+    "来源": "游梦鱼数字人",
+    "文件": ".youmengyu/memory/semantic/lessons.md",
+    "片段": "2026-11-23T11:22:02.135Z [learn, codebuddy]",
+    "宿主": "learn, codebuddy"
+  },
+  "archived": false,
+  "isLatest": false,
+  "relations": [],
+  "versions": [
+    {
+      "title": "复用工作室树/脚本切换时，模板 fs.write 要包一层 flush，否则树盖层里的改动保存时仍是旧脚本。",
+      "content": "复用工作室树/脚本切换时，模板 fs.write 要包一层 flush，否则树盖层里的改动保存时仍是旧脚本。",
+      "tags": [
+        "lesson"
+      ],
+      "importance": 4,
+      "updatedAt": "2026-11-24T11:42:06.657Z",
+      "note": "合并前"
+    }
+  ]
+}

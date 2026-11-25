@@ -1,0 +1,39 @@
+{
+  "id": "6f7ef0286b35",
+  "title": "pref",
+  "content": "# pref\n## 2026-09-09T07:34:37.824Z [lang]\n喜欢 TypeScript",
+  "tags": [
+    "preference"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-24T07:52:29.930Z",
+  "updatedAt": "2026-11-25T03:02:36.082Z",
+  "source": ".youmengyu/memory/semantic/pref.md",
+  "uses": 0,
+  "pinned": false,
+  "space": "数字人",
+  "facts": [
+    "# pref",
+    "## 2026-09-09T07:34:37.824Z [lang]",
+    "喜欢 TypeScript"
+  ],
+  "metadata": {
+    "来源": "游梦鱼数字人",
+    "文件": ".youmengyu/memory/semantic/pref.md"
+  },
+  "archived": false,
+  "isLatest": false,
+  "relations": [],
+  "versions": [
+    {
+      "title": "pref",
+      "content": "# pref\n## 2026-09-09T07:34:37.824Z [lang]\n喜欢 TypeScript",
+      "tags": [
+        "preference"
+      ],
+      "importance": 4,
+      "updatedAt": "2026-11-24T11:42:06.680Z",
+      "note": "合并前"
+    }
+  ]
+}

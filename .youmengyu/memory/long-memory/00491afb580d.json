@@ -1,0 +1,26 @@
+{
+  "id": "00491afb580d",
+  "title": "Monaco provider 重复注册问题",
+  "content": "Monaco 是进程级单例，补全 provider 重复注册会叠加。新页面需要复用 registerLanguages 的幂等实现，避免自行挂 provider。",
+  "tags": [
+    "decision"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-24T11:42:06.650Z",
+  "updatedAt": "2026-11-24T11:42:06.650Z",
+  "source": "ai:consolidate",
+  "uses": 0,
+  "space": "default",
+  "facts": [
+    "Monaco 是进程级单例，补全 provider 重复注册会叠加。",
+    "新页面需要复用 registerLanguages 的幂等实现，避免自行挂 provider。"
+  ],
+  "metadata": {
+    "by": "ai-organizer",
+    "mergedFrom": "be7ef140aa7b,bab5b7924824"
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": []
+}

@@ -1,0 +1,44 @@
+{
+  "id": "0ee3bff83a20",
+  "title": "2026-09-28T03:22 patrol: code-patrol",
+  "content": "### 2026-09-28T03:22 patrol: code-patrol\n\n# 自动巡检：修复 webtuv 的代码健康问题\n\n巡检发现以下问题，请逐项排查并修复，完成后跑通相关检查：\n\n- [\n- 为「patrol: code-patrol\n\n# 自动巡检：修复 webtuv 的代码健康问题\n\n巡检发现以下问题，请逐项排查并修复，完成后跑通相关检查：\n\n- [」记下前置校验（失败率 100%）\n预期：下次同类任务先核对输入，而不是直接再试一遍\n\n### 2026-09-30T07:22 patrol: code-patrol\n- 为「patrol: code-patrol」记下前置校验（失败率 100%）\n预期：下次同类任务先核对输入，而不是直接再试一遍\n\n### 2026-09-30T07:22 # 修复重复失败：unknown\n- 为「# 修复重复失败：unknown」记下前置校验（失败率 100%）\n预期：下次同类任务先核对输入，而不是直接再试一遍\n\n### 2026-09-30T23:37 Invalid User API Key\n- 为「Invalid User API Key」记下前置校验（失败率 100%）\n预期：下次同类任务先核对输入，而不是直接再试一遍\n\n### 2026-10-20T00:54 Network request failed\n- 为「Network request failed」记下前置校验（失败率 100%）\n预期：下次同类任务先核对输入，而不是直接再试一遍",
+  "tags": [
+    "lesson"
+  ],
+  "importance": 3,
+  "createdAt": "2026-11-24T07:52:29.965Z",
+  "updatedAt": "2026-11-25T03:02:36.115Z",
+  "source": ".youmengyu/memory/evolution/wisdom.md",
+  "uses": 0,
+  "pinned": false,
+  "space": "数字人",
+  "facts": [
+    "### 2026-09-28T03:22 patrol: code-patrol",
+    "# 自动巡检：修复 webtuv 的代码健康问题",
+    "巡检发现以下问题，请逐项排查并修复，完成后跑通相关检查：",
+    "为「patrol: code-patrol",
+    "[」记下前置校验（失败率 100%）",
+    "预期：下次同类任务先核对输入，而不是直接再试一遍",
+    "### 2026-09-30T07:22 patrol: code-patrol",
+    "为「patrol: code-patrol」记下前置校验（失败率 100%）"
+  ],
+  "metadata": {
+    "来源": "游梦鱼数字人",
+    "文件": ".youmengyu/memory/evolution/wisdom.md"
+  },
+  "archived": false,
+  "isLatest": false,
+  "relations": [],
+  "versions": [
+    {
+      "title": "2026-09-28T03:22 patrol: code-patrol",
+      "content": "### 2026-09-28T03:22 patrol: code-patrol\n\n# 自动巡检：修复 webtuv 的代码健康问题\n\n巡检发现以下问题，请逐项排查并修复，完成后跑通相关检查：\n\n- [\n- 为「patrol: code-patrol\n\n# 自动巡检：修复 webtuv 的代码健康问题\n\n巡检发现以下问题，请逐项排查并修复，完成后跑通相关检查：\n\n- [」记下前置校验（失败率 100%）\n预期：下次同类任务先核对输入，而不是直接再试一遍\n\n### 2026-09-30T07:22 patrol: code-patrol\n- 为「patrol: code-patrol」记下前置校验（失败率 100%）\n预期：下次同类任务先核对输入，而不是直接再试一遍\n\n### 2026-09-30T07:22 # 修复重复失败：unknown\n- 为「# 修复重复失败：unknown」记下前置校验（失败率 100%）\n预期：下次同类任务先核对输入，而不是直接再试一遍\n\n### 2026-09-30T23:37 Invalid User API Key\n- 为「Invalid User API Key」记下前置校验（失败率 100%）\n预期：下次同类任务先核对输入，而不是直接再试一遍\n\n### 2026-10-20T00:54 Network request failed\n- 为「Network request failed」记下前置校验（失败率 100%）\n预期：下次同类任务先核对输入，而不是直接再试一遍",
+      "tags": [
+        "lesson"
+      ],
+      "importance": 3,
+      "updatedAt": "2026-11-24T11:42:06.648Z",
+      "note": "合并前"
+    }
+  ]
+}

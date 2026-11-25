@@ -1,0 +1,27 @@
+{
+  "id": "dc512333ce35",
+  "title": "重复构建必须验二次，宿主safe-delete钩子会代理fs删除，生成目录改用同盘rename并关闭Vite empt…",
+  "content": "重复构建必须验二次，宿主safe-delete钩子会代理fs删除，生成目录改用同盘rename并关闭Vite emptyOutDir",
+  "tags": [
+    "lesson"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-24T10:12:12.398Z",
+  "updatedAt": "2026-11-24T10:12:12.398Z",
+  "source": ".youmengyu/memory/semantic/lessons.md",
+  "uses": 0,
+  "space": "数字人",
+  "facts": [
+    "重复构建必须验二次，宿主safe-delete钩子会代理fs删除，生成目录改用同盘rename并关闭Vite emptyOutDir"
+  ],
+  "metadata": {
+    "来源": "游梦鱼数字人",
+    "文件": ".youmengyu/memory/semantic/lessons.md",
+    "片段": "2026-11-16T01:58:24.673Z [learn, codebuddy]",
+    "宿主": "learn, codebuddy"
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": []
+}

@@ -1,0 +1,27 @@
+{
+  "id": "e48815b7e9ae",
+  "title": "失败：database is locked",
+  "content": "- 失败：database is locked",
+  "tags": [
+    "lesson"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-24T10:12:12.396Z",
+  "updatedAt": "2026-11-24T10:12:12.396Z",
+  "source": ".youmengyu/memory/semantic/lessons.md",
+  "uses": 0,
+  "space": "数字人",
+  "facts": [
+    "失败：database is locked"
+  ],
+  "metadata": {
+    "来源": "游梦鱼数字人",
+    "文件": ".youmengyu/memory/semantic/lessons.md",
+    "片段": "2026-11-13T04:12",
+    "宿主": ""
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": []
+}

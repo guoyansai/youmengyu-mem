@@ -1,0 +1,45 @@
+{
+  "mode": "apply",
+  "aggressive": false,
+  "totalBefore": 23,
+  "wouldRemove": 4,
+  "breakdown": {
+    "pureFailure": 0,
+    "taskOnly": 1,
+    "noSolution": 0,
+    "templateNoise": 0,
+    "duplicateCopy": 3
+  },
+  "details": [
+    {
+      "id": "befc877d9214",
+      "file": "befc877d9214.json",
+      "title": "请按 unknown 的失败模式补回归用例并修正根因",
+      "reason": "任务指令/验收标准非教训",
+      "category": "task-only"
+    },
+    {
+      "id": "1de845bd7239",
+      "file": "1de845bd7239.json",
+      "title": "js-正则没有-z-锚-是字面量-z-跨行段落解析用-indexof-索引切片法",
+      "reason": "重复副本",
+      "category": "duplicate"
+    },
+    {
+      "id": "bad6fda7155c",
+      "file": "bad6fda7155c.json",
+      "title": "新增会写盘的-cli-一律先经-lib-data-root-guard-mjs-",
+      "reason": "重复副本",
+      "category": "duplicate"
+    },
+    {
+      "id": "c40bf5e5121d",
+      "file": "c40bf5e5121d.json",
+      "title": "插件目录搬家后必须同步应用层 manifest 的静态 glob：Vite 对空目录 glob 不报错，插件静默消失，…",
+      "reason": "重复副本",
+      "category": "duplicate"
+    }
+  ],
+  "bytesSaved": 5044,
+  "remaining": 19
+}

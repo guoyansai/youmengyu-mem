@@ -1,0 +1,24 @@
+{
+  "mode": "apply",
+  "aggressive": true,
+  "totalBefore": 18,
+  "wouldRemove": 1,
+  "breakdown": {
+    "pureFailure": 0,
+    "taskOnly": 0,
+    "noSolution": 0,
+    "templateNoise": 1,
+    "duplicateCopy": 0
+  },
+  "details": [
+    {
+      "id": "16950717e0f4",
+      "file": "16950717e0f4.json",
+      "title": "2026-09-09 · 自我叙事",
+      "reason": "匹配模板废话模式 ×2",
+      "category": "template-noise"
+    }
+  ],
+  "bytesSaved": 5486,
+  "remaining": 17
+}

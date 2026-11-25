@@ -1,0 +1,13 @@
+{
+  "title": "查修BUG：记忆面板列表窗口与 AI 整理按钮",
+  "summary": "查修BUG：虚拟列表按列表在文档中的起点计算可见行，空列表不再把高度写成 0；分页按 offset 与 epoch 落地，筛选切换后的旧页不会拼进新结果。AI 立即整理记忆改为星火胶囊按钮，标题栏图标改为 sparkle，与刷新的环形箭头和灰色方钮区分开。",
+  "type": "查修BUG",
+  "files": [
+    "media/list-window.js",
+    "media/panel.js",
+    "src/panel.ts",
+    "package.json",
+    ".youmengyu/test/unit/panel-list.test.mjs"
+  ],
+  "testCommand": "npm run asaitest"
+}

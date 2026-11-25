@@ -1,0 +1,101 @@
+{
+  "mode": "dry-run",
+  "aggressive": false,
+  "totalBefore": 30,
+  "wouldRemove": 12,
+  "breakdown": {
+    "pureFailure": 3,
+    "taskOnly": 1,
+    "noSolution": 0,
+    "templateNoise": 0,
+    "duplicateCopy": 7
+  },
+  "details": [
+    {
+      "id": "172354428d1f",
+      "file": "172354428d1f.json",
+      "title": "失败：Network request failed",
+      "reason": "纯失败关键词无技术内容",
+      "category": "pure-failure"
+    },
+    {
+      "id": "a3e708ebcf8f",
+      "file": "a3e708ebcf8f.json",
+      "title": "失败：Invalid User API Key",
+      "reason": "纯失败关键词无技术内容",
+      "category": "pure-failure"
+    },
+    {
+      "id": "b876c55bc9fa",
+      "file": "b876c55bc9fa.json",
+      "title": "2026-09-30T00:38 深度反刍",
+      "reason": "模板化重复次数 ×48，无实质教训",
+      "category": "template-ruminate"
+    },
+    {
+      "id": "befc877d9214",
+      "file": "befc877d9214.json",
+      "title": "请按 unknown 的失败模式补回归用例并修正根因",
+      "reason": "任务指令/验收标准非教训",
+      "category": "task-only"
+    },
+    {
+      "id": "e48815b7e9ae",
+      "file": "e48815b7e9ae.json",
+      "title": "失败：database is locked",
+      "reason": "纯失败关键词无技术内容",
+      "category": "pure-failure"
+    },
+    {
+      "id": "1de845bd7239",
+      "file": "1de845bd7239.json",
+      "title": "js-正则没有-z-锚-是字面量-z-跨行段落解析用-indexof-索引切片法",
+      "reason": "重复副本",
+      "category": "duplicate"
+    },
+    {
+      "id": "34eaebd1911b",
+      "file": "34eaebd1911b.json",
+      "title": "权限目录只认 capabilities.list() 的 id；菜单 capability 与后端登记必须同名，排障先…",
+      "reason": "重复副本",
+      "category": "duplicate"
+    },
+    {
+      "id": "6b13222366f4",
+      "file": "6b13222366f4.json",
+      "title": "复用工作室树/脚本切换时，模板 fs.write 要包一层 flush，否则树盖层里的改动保存时仍是旧脚本。",
+      "reason": "重复副本",
+      "category": "duplicate"
+    },
+    {
+      "id": "bad6fda7155c",
+      "file": "bad6fda7155c.json",
+      "title": "新增会写盘的-cli-一律先经-lib-data-root-guard-mjs-",
+      "reason": "重复副本",
+      "category": "duplicate"
+    },
+    {
+      "id": "be7ef140aa7b",
+      "file": "be7ef140aa7b.json",
+      "title": "Monaco 是进程级单例，补全 provider 重复注册会叠加；新页面要复用 registerLanguages …",
+      "reason": "重复副本",
+      "category": "duplicate"
+    },
+    {
+      "id": "c40bf5e5121d",
+      "file": "c40bf5e5121d.json",
+      "title": "插件目录搬家后必须同步应用层 manifest 的静态 glob：Vite 对空目录 glob 不报错，插件静默消失，…",
+      "reason": "重复副本",
+      "category": "duplicate"
+    },
+    {
+      "id": "dc512333ce35",
+      "file": "dc512333ce35.json",
+      "title": "重复构建必须验二次，宿主safe-delete钩子会代理fs删除，生成目录改用同盘rename并关闭Vite empt…",
+      "reason": "重复副本",
+      "category": "duplicate"
+    }
+  ],
+  "bytesSaved": 0,
+  "remaining": 18
+}

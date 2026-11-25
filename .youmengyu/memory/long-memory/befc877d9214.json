@@ -1,0 +1,34 @@
+{
+  "id": "befc877d9214",
+  "title": "请按 unknown 的失败模式补回归用例并修正根因",
+  "content": "- 失败：# 修复重复失败：unknown\n\n来源：意识活动时段\n类型：fix-failure\n理由：近 30 天 unknown×2 次失败，需补回归用例或修正根因\n\n## 任务\n请按 unknown 的失败模式补回归用例并修正根因\n\n## 验收\n- 失败模式不再复现\n- 相关 unit 测试全绿\n- 全量 `npm run asaitest` 不引入回归",
+  "tags": [
+    "lesson"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-24T10:12:12.387Z",
+  "updatedAt": "2026-11-24T10:12:12.387Z",
+  "source": ".youmengyu/memory/semantic/lessons.md",
+  "uses": 0,
+  "space": "数字人",
+  "facts": [
+    "失败：# 修复重复失败：unknown",
+    "来源：意识活动时段",
+    "类型：fix-failure",
+    "理由：近 30 天 unknown×2 次失败，需补回归用例或修正根因",
+    "## 任务",
+    "请按 unknown 的失败模式补回归用例并修正根因",
+    "## 验收",
+    "失败模式不再复现"
+  ],
+  "metadata": {
+    "来源": "游梦鱼数字人",
+    "文件": ".youmengyu/memory/semantic/lessons.md",
+    "片段": "2026-09-30T00:38",
+    "宿主": ""
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": []
+}

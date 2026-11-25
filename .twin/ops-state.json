@@ -1,0 +1,15 @@
+{
+  "files": {
+    "AGENTS.md": 1,
+    "src/agent-learn.ts": 1,
+    "src/agent-loop.ts": 1,
+    "src/extension.ts": 1,
+    "media/panel.js": 1,
+    "media/list-window.js": 1,
+    "src/panel.ts": 1,
+    "package.json": 1,
+    ".youmengyu/test/unit/panel-list.test.mjs": 1
+  },
+  "commands": {},
+  "updatedAt": "2026-11-25T03:28:06.470Z"
+}

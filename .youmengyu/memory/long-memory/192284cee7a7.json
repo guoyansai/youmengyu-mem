@@ -1,0 +1,26 @@
+{
+  "id": "192284cee7a7",
+  "title": "重复构建须二次验证与 safe-delete 代理",
+  "content": "重复构建必验二次，宿主 safe-delete 钩子会代理 fs 删除。生成目录改用同盘 rename 并关闭 Vite emptyOutDir。",
+  "tags": [
+    "decision"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-24T11:42:06.660Z",
+  "updatedAt": "2026-11-24T11:42:06.660Z",
+  "source": "ai:consolidate",
+  "uses": 0,
+  "space": "default",
+  "facts": [
+    "重复构建必验二次，宿主 safe-delete 钩子会代理 fs 删除。",
+    "生成目录改用同盘 rename 并关闭 Vite emptyOutDir。"
+  ],
+  "metadata": {
+    "by": "ai-organizer",
+    "mergedFrom": "34eaebd1911b,db2959631729"
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": []
+}

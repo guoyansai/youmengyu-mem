@@ -1,0 +1,40 @@
+{
+  "id": "34eaebd1911b",
+  "title": "权限目录只认 capabilities.list() 的 id；菜单 capability 与后端登记必须同名，排障先…",
+  "content": "权限目录只认 capabilities.list() 的 id；菜单 capability 与后端登记必须同名，排障先看 /api/auth/permissions 再看 can()。",
+  "tags": [
+    "lesson"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-24T10:12:12.403Z",
+  "updatedAt": "2026-11-25T03:02:36.077Z",
+  "source": ".youmengyu/memory/semantic/lessons.md",
+  "uses": 0,
+  "pinned": false,
+  "space": "数字人",
+  "facts": [
+    "权限目录只认 capabilities.list() 的 id；",
+    "菜单 capability 与后端登记必须同名，排障先看 /api/auth/permissions 再看 can()。"
+  ],
+  "metadata": {
+    "来源": "游梦鱼数字人",
+    "文件": ".youmengyu/memory/semantic/lessons.md",
+    "片段": "2026-11-24T04:55:54.644Z [learn, codebuddy]",
+    "宿主": "learn, codebuddy"
+  },
+  "archived": false,
+  "isLatest": false,
+  "relations": [],
+  "versions": [
+    {
+      "title": "权限目录只认 capabilities.list() 的 id；菜单 capability 与后端登记必须同名，排障先…",
+      "content": "权限目录只认 capabilities.list() 的 id；菜单 capability 与后端登记必须同名，排障先看 /api/auth/permissions 再看 can()。",
+      "tags": [
+        "lesson"
+      ],
+      "importance": 4,
+      "updatedAt": "2026-11-24T11:42:06.662Z",
+      "note": "合并前"
+    }
+  ]
+}

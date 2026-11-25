@@ -1,0 +1,40 @@
+{
+  "id": "be7ef140aa7b",
+  "title": "Monaco 是进程级单例，补全 provider 重复注册会叠加；新页面要复用 registerLanguages …",
+  "content": "Monaco 是进程级单例，补全 provider 重复注册会叠加；新页面要复用 registerLanguages 的幂等袋，别自己挂 provider。",
+  "tags": [
+    "lesson"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-24T10:12:12.401Z",
+  "updatedAt": "2026-11-25T03:02:36.074Z",
+  "source": ".youmengyu/memory/semantic/lessons.md",
+  "uses": 0,
+  "pinned": false,
+  "space": "数字人",
+  "facts": [
+    "Monaco 是进程级单例，补全 provider 重复注册会叠加；",
+    "新页面要复用 registerLanguages 的幂等袋，别自己挂 provider。"
+  ],
+  "metadata": {
+    "来源": "游梦鱼数字人",
+    "文件": ".youmengyu/memory/semantic/lessons.md",
+    "片段": "2026-11-23T11:43:25.371Z [learn, codebuddy]",
+    "宿主": "learn, codebuddy"
+  },
+  "archived": false,
+  "isLatest": false,
+  "relations": [],
+  "versions": [
+    {
+      "title": "Monaco 是进程级单例，补全 provider 重复注册会叠加；新页面要复用 registerLanguages …",
+      "content": "Monaco 是进程级单例，补全 provider 重复注册会叠加；新页面要复用 registerLanguages 的幂等袋，别自己挂 provider。",
+      "tags": [
+        "lesson"
+      ],
+      "importance": 4,
+      "updatedAt": "2026-11-24T11:42:06.652Z",
+      "note": "合并前"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "id": "356bd45a98f7",
+  "title": "工作室树/脚本切换时的 fs.write flush",
+  "content": "在复用工作室树/脚本切换时，模板 fs.write 要包一层 flush，否则树盖层的改动保存仍为旧脚本。",
+  "tags": [
+    "decision"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-24T11:42:06.656Z",
+  "updatedAt": "2026-11-24T11:42:06.656Z",
+  "source": "ai:consolidate",
+  "uses": 0,
+  "space": "default",
+  "facts": [
+    "在复用工作室树/脚本切换时，模板 fs.write 要包一层 flush，否则树盖层的改动保存仍为旧脚本。"
+  ],
+  "metadata": {
+    "by": "ai-organizer",
+    "mergedFrom": "6b13222366f4,1519c171701d"
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": []
+}

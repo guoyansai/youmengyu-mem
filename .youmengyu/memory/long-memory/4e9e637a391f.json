@@ -1,0 +1,26 @@
+{
+  "id": "4e9e637a391f",
+  "title": "插件目录搬家后同步 manifest 静态 glob",
+  "content": "插件目录搬迁后需同步应用层 manifest 的静态 glob；Vite 对空目录 glob 不报错，插件会静默消失，导致依赖方报『依赖未启用的插件 X』。",
+  "tags": [
+    "decision"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-24T11:42:06.664Z",
+  "updatedAt": "2026-11-24T11:42:06.664Z",
+  "source": "ai:consolidate",
+  "uses": 0,
+  "space": "default",
+  "facts": [
+    "插件目录搬迁后需同步应用层 manifest 的静态 glob；",
+    "Vite 对空目录 glob 不报错，插件会静默消失，导致依赖方报『依赖未启用的插件 X』。"
+  ],
+  "metadata": {
+    "by": "ai-organizer",
+    "mergedFrom": "752e6ae7c52d,c40bf5e5121d"
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": []
+}

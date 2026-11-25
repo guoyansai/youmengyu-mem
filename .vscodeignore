@@ -1,0 +1,8 @@
+src/**
+node_modules/**
+dist/**/*.map
+.vscode/**
+.gitignore
+tsconfig.json
+**/*.vsix
+.youmengyu/**

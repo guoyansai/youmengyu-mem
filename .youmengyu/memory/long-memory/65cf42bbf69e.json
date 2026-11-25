@@ -1,0 +1,41 @@
+{
+  "id": "65cf42bbf69e",
+  "title": "js-regex-and-budget-invariants",
+  "content": "# js-regex-and-budget-invariants\n## 2026-09-09T11:25:33.527Z [learn, workbuddy]\nJS 正则没有 \\Z 锚（是字面量 Z）——跨行段落解析用 indexOf/索引切片法，不要用 (?=...|\\Z)；改库函数时同批改的测试断言要与实现同步推演（预算上限改值会撞 '常驻块更省' 类不变量断言）。",
+  "tags": [
+    "fact"
+  ],
+  "importance": 3,
+  "createdAt": "2026-11-24T07:52:29.894Z",
+  "updatedAt": "2026-11-25T03:02:36.064Z",
+  "source": ".youmengyu/memory/semantic/js-regex-and-budget-invariants.md",
+  "uses": 0,
+  "pinned": false,
+  "space": "数字人",
+  "facts": [
+    "# js-regex-and-budget-invariants",
+    "## 2026-09-09T11:25:33.527Z [learn, workbuddy]",
+    "JS 正则没有 \\Z 锚（是字面量 Z）——跨行段落解析用 indexOf/索引切片法，不要用 (?",
+    "=...|\\Z)；",
+    "改库函数时同批改的测试断言要与实现同步推演（预算上限改值会撞 '常驻块更省' 类不变量断言）。"
+  ],
+  "metadata": {
+    "来源": "游梦鱼数字人",
+    "文件": ".youmengyu/memory/semantic/js-regex-and-budget-invariants.md"
+  },
+  "archived": false,
+  "isLatest": false,
+  "relations": [],
+  "versions": [
+    {
+      "title": "js-regex-and-budget-invariants",
+      "content": "# js-regex-and-budget-invariants\n## 2026-09-09T11:25:33.527Z [learn, workbuddy]\nJS 正则没有 \\Z 锚（是字面量 Z）——跨行段落解析用 indexOf/索引切片法，不要用 (?=...|\\Z)；改库函数时同批改的测试断言要与实现同步推演（预算上限改值会撞 '常驻块更省' 类不变量断言）。",
+      "tags": [
+        "fact"
+      ],
+      "importance": 3,
+      "updatedAt": "2026-11-24T11:42:06.676Z",
+      "note": "合并前"
+    }
+  ]
+}

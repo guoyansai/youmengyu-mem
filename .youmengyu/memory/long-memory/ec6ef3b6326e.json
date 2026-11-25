@@ -1,0 +1,40 @@
+{
+  "id": "ec6ef3b6326e",
+  "title": "test-pitfalls",
+  "content": "# test-pitfalls\n## 2026-09-09T08:36:30.084Z [learn, workbuddy]\n新增会写盘的 CLI 一律先经 lib/data-root-guard.mjs 自证 data-root，测试目录防误写；超期判定按 episodic 文件名日期而非 mtime，否则巡检对伪造日期文件失灵。",
+  "tags": [
+    "lesson"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-24T07:52:29.939Z",
+  "updatedAt": "2026-11-25T03:02:36.090Z",
+  "source": ".youmengyu/memory/semantic/test-pitfalls.md",
+  "uses": 0,
+  "pinned": false,
+  "space": "数字人",
+  "facts": [
+    "# test-pitfalls",
+    "## 2026-09-09T08:36:30.084Z [learn, workbuddy]",
+    "新增会写盘的 CLI 一律先经 lib/data-root-guard.mjs 自证 data-root，测试目录防误写；",
+    "超期判定按 episodic 文件名日期而非 mtime，否则巡检对伪造日期文件失灵。"
+  ],
+  "metadata": {
+    "来源": "游梦鱼数字人",
+    "文件": ".youmengyu/memory/semantic/test-pitfalls.md"
+  },
+  "archived": false,
+  "isLatest": false,
+  "relations": [],
+  "versions": [
+    {
+      "title": "test-pitfalls",
+      "content": "# test-pitfalls\n## 2026-09-09T08:36:30.084Z [learn, workbuddy]\n新增会写盘的 CLI 一律先经 lib/data-root-guard.mjs 自证 data-root，测试目录防误写；超期判定按 episodic 文件名日期而非 mtime，否则巡检对伪造日期文件失灵。",
+      "tags": [
+        "lesson"
+      ],
+      "importance": 4,
+      "updatedAt": "2026-11-24T11:42:06.671Z",
+      "note": "合并前"
+    }
+  ]
+}

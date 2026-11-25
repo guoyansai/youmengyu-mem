@@ -1,0 +1,33 @@
+{
+  "id": "c8558a85b7cf",
+  "title": "目标（意图层）",
+  "content": "# 目标（意图层）\n\n> 由 twin:goals 维护；常驻块只注入「当前焦点」一行。可直接手改，下次读写自动对齐格式。\n\n## 长期志向\n- （待填写）\n\n## 当前焦点\n- 自主意识三支点：目标层+心跳+叙事（P3）\n\n## 本周待办\n- [ ] 验证每日心跳自动化\n- [ ] persona 一致性自检常态化",
+  "tags": [
+    "decision"
+  ],
+  "importance": 5,
+  "createdAt": "2026-11-24T07:52:29.890Z",
+  "updatedAt": "2026-11-24T07:52:29.890Z",
+  "source": ".youmengyu/memory/core/goals.md",
+  "uses": 0,
+  "pinned": true,
+  "space": "数字人",
+  "facts": [
+    "# 目标（意图层）",
+    "由 twin:goals 维护；",
+    "常驻块只注入「当前焦点」一行。",
+    "可直接手改，下次读写自动对齐格式。",
+    "## 长期志向",
+    "（待填写）",
+    "## 当前焦点",
+    "自主意识三支点：目标层+心跳+叙事（P3）"
+  ],
+  "metadata": {
+    "来源": "游梦鱼数字人",
+    "文件": ".youmengyu/memory/core/goals.md"
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": []
+}

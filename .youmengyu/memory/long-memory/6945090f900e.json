@@ -1,0 +1,26 @@
+{
+  "id": "6945090f900e",
+  "title": "主人偏好设置",
+  "content": "用户偏好：最小改动原则、节省 token、不破坏已有功能。语言偏好：TypeScript。",
+  "tags": [
+    "decision"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-24T11:42:06.677Z",
+  "updatedAt": "2026-11-24T11:42:06.677Z",
+  "source": "ai:consolidate",
+  "uses": 0,
+  "space": "default",
+  "facts": [
+    "用户偏好：最小改动原则、节省 token、不破坏已有功能。",
+    "语言偏好：TypeScript。"
+  ],
+  "metadata": {
+    "by": "ai-organizer",
+    "mergedFrom": "6bd0078daf24,6f7ef0286b35"
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": []
+}

@@ -1,0 +1,30 @@
+{
+  "id": "5e6281a87249",
+  "title": "来源：意识活动时段",
+  "content": "- 失败：# 修复重复失败：unknown\n\n来源：意识活动时段\n类型：fix-failure\n理由：近 30 天 unknown×2 次失败，需补回归用例或修正根因",
+  "tags": [
+    "lesson"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-24T07:52:29.899Z",
+  "updatedAt": "2026-11-24T07:52:29.899Z",
+  "source": ".youmengyu/memory/semantic/lessons.md",
+  "uses": 0,
+  "space": "数字人",
+  "facts": [
+    "失败：# 修复重复失败：unknown",
+    "来源：意识活动时段",
+    "类型：fix-failure",
+    "理由：近 30 天 unknown×2 次失败，需补回归用例或修正根因"
+  ],
+  "metadata": {
+    "来源": "游梦鱼数字人",
+    "文件": ".youmengyu/memory/semantic/lessons.md",
+    "片段": "2026-09-30T00:38",
+    "宿主": ""
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": []
+}

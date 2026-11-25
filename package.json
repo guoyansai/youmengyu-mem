@@ -1,0 +1,286 @@
+{
+  "name": "youmengyu-mem",
+  "displayName": "游梦鱼·长记忆 (AI Memory for Git Repos)",
+  "description": "给每个 Git 仓库一份可长期积累、可注入 AI 编程助手的本地长记忆：事实化存储、画像注入、语义重排检索、版本链与关系图、空间分区；数据按条目存进仓库自身的 .youmengyu/memory/long-memory，与游梦鱼数字人共用同一份本仓记忆。",
+  "version": "0.5.0",
+  "publisher": "youmengyu-mem",
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/guoyansai/youmengyu-mem"
+  },
+  "keywords": [
+    "memory",
+    "AI",
+    "agents",
+    "AGENTS.md",
+    "long memory",
+    "knowledge base"
+  ],
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Machine Learning",
+    "Education"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "aimemory",
+          "title": "游梦鱼·长记忆",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "aimemory": [
+        {
+          "id": "aimemory.panel",
+          "name": "记忆面板",
+          "type": "webview"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "aimemory.add",
+        "title": "添加记忆（选中文本/输入）",
+        "category": "游梦鱼·长记忆",
+        "icon": "$(add)"
+      },
+      {
+        "command": "aimemory.addSelection",
+        "title": "将选中文本存为记忆",
+        "category": "游梦鱼·长记忆"
+      },
+      {
+        "command": "aimemory.search",
+        "title": "搜索记忆",
+        "category": "游梦鱼·长记忆",
+        "icon": "$(search)"
+      },
+      {
+        "command": "aimemory.openPanel",
+        "title": "打开记忆面板",
+        "category": "游梦鱼·长记忆",
+        "icon": "$(preview)"
+      },
+      {
+        "command": "aimemory.inject.generate",
+        "title": "生成 AI 助手注入块（AGENTS.md 等）",
+        "category": "游梦鱼·长记忆"
+      },
+      {
+        "command": "aimemory.inject.copyAll",
+        "title": "复制全部记忆上下文",
+        "category": "游梦鱼·长记忆"
+      },
+      {
+        "command": "aimemory.git.lessons",
+        "title": "从最近 Git 提交提炼记忆",
+        "category": "游梦鱼·长记忆"
+      },
+      {
+        "command": "aimemory.refresh",
+        "title": "刷新",
+        "category": "游梦鱼·长记忆",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "aimemory.entry.edit",
+        "title": "编辑记忆",
+        "category": "游梦鱼·长记忆"
+      },
+      {
+        "command": "aimemory.entry.delete",
+        "title": "删除记忆",
+        "category": "游梦鱼·长记忆"
+      },
+      {
+        "command": "aimemory.entry.copy",
+        "title": "复制记忆",
+        "category": "游梦鱼·长记忆"
+      },
+      {
+        "command": "aimemory.entry.pin",
+        "title": "置顶/取消置顶",
+        "category": "游梦鱼·长记忆"
+      },
+      {
+        "command": "aimemory.entry.forget",
+        "title": "归档 / 恢复记忆（遗忘但留档）",
+        "category": "游梦鱼·长记忆"
+      },
+      {
+        "command": "aimemory.entry.space",
+        "title": "移动到记忆空间",
+        "category": "游梦鱼·长记忆"
+      },
+      {
+        "command": "aimemory.entry.detail",
+        "title": "查看记忆详情（事实 / 关系 / 版本）",
+        "category": "游梦鱼·长记忆"
+      },
+      {
+        "command": "aimemory.profile",
+        "title": "查看仓库画像",
+        "category": "游梦鱼·长记忆",
+        "icon": "$(star)"
+      },
+      {
+        "command": "aimemory.export",
+        "title": "导出记忆 (JSON)",
+        "category": "游梦鱼·长记忆"
+      },
+      {
+        "command": "aimemory.import",
+        "title": "导入记忆 (JSON)",
+        "category": "游梦鱼·长记忆"
+      },
+      {
+        "command": "aimemory.import.files",
+        "title": "从文件批量导入记忆（md / txt）",
+        "category": "游梦鱼·长记忆"
+      },
+      {
+        "command": "aimemory.import.youmengyu",
+        "title": "导入游梦鱼数字人记忆（.youmengyu）",
+        "category": "游梦鱼·长记忆",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "aimemory.ai.settings",
+        "title": "AI 服务设置（离线/在线/免费）",
+        "category": "游梦鱼·长记忆",
+        "icon": "$(gear)"
+      },
+      {
+        "command": "aimemory.ai.organize",
+        "title": "AI 立即整理记忆",
+        "category": "游梦鱼·长记忆",
+        "icon": "$(sparkle)"
+      },
+      {
+        "command": "aimemory.ai.capture",
+        "title": "AI 捕获当前编辑器内容为记忆",
+        "category": "游梦鱼·长记忆",
+        "icon": "$(cloud-upload)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "aimemory.ai.settings",
+          "when": "view == aimemory.panel",
+          "group": "navigation@1"
+        },
+        {
+          "command": "aimemory.ai.organize",
+          "when": "view == aimemory.panel",
+          "group": "navigation@2"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "aimemory.addSelection",
+          "when": "editorHasSelection",
+          "group": "9_aimemory"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "游梦鱼·长记忆",
+      "properties": {
+        "aimemory.storageDir": {
+          "type": "string",
+          "default": ".youmengyu/memory/long-memory",
+          "description": "记忆存储目录（相对仓库根，跟随仓库自身存储；建议提交进 Git 以便团队共享）"
+        },
+        "aimemory.injectTargets": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "AGENTS.md",
+              "CLAUDE.md",
+              ".cursorrules",
+              ".github/copilot-instructions.md"
+            ]
+          },
+          "default": [
+            "AGENTS.md"
+          ],
+          "description": "生成注入块的目标文件（标记对之间自动更新，不动其他内容）"
+        },
+        "aimemory.maxInjectEntries": {
+          "type": "number",
+          "default": 60,
+          "description": "注入块中最多包含的记忆条数（按重要性+置顶优先）"
+        },
+        "aimemory.autoInject": {
+          "type": "boolean",
+          "default": true,
+          "description": "安装后自动把长记忆写入注入目标（默认 AGENTS.md），让当前 Agent 开工即读到项目规则与长期记忆。关闭则只在手动生成时写入"
+        },
+        "aimemory.autoAgentMemory": {
+          "type": "boolean",
+          "default": true,
+          "description": "安装后自动记住当前工作区 Agent 的全部对话：对话留档可检索，其中的规则、约定和教训写入长记忆，重复出现则提高重要性。关闭则不再监听对话"
+        },
+        "aimemory.youmengyuRoot": {
+          "type": "string",
+          "default": "D:/Web/asaiwebagent",
+          "description": "游梦鱼数字人仓库根目录（含 .youmengyu/memory，数字人记忆自动导入的数据源）"
+        },
+        "aimemory.youmengyuAutoImport": {
+          "type": "boolean",
+          "default": true,
+          "description": "插件激活时自动导入数字人 .youmengyu 记忆到当前仓库（同内容幂等合并，仅新增时提示）。数字人仓库自身默认跳过：其插件数据已存进 memory 分区共用同一份目录，再导入会形成副本"
+        }
+      }
+    },
+    "keybindings": [
+      {
+        "command": "aimemory.search",
+        "key": "ctrl+alt+m",
+        "mac": "cmd+alt+m"
+      },
+      {
+        "command": "aimemory.add",
+        "key": "ctrl+alt+shift+m",
+        "mac": "cmd+alt+shift+m"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "asaitest": "npm run compile && node --test \".youmengyu/test/**/*.test.mjs\"",
+    "watch": "tsc -watch -p ./",
+    "package": "npm run compile && vsce package --no-dependencies",
+    "publish": "npm run compile && vsce publish --no-dependencies",
+    "publish:ovsx": "ovsx publish",
+    "vscode:prepublish": "npm run compile",
+    "release": "node scripts/release.mjs",
+    "release:dry": "node scripts/release.mjs --dry-run",
+    "release:patch": "node scripts/release.mjs patch",
+    "release:minor": "node scripts/release.mjs minor",
+    "release:major": "node scripts/release.mjs major",
+    "cleanup": "node scripts/cleanup-memory.mjs --apply",
+    "cleanup:aggressive": "node scripts/cleanup-memory.mjs --apply --aggressive",
+    "cleanup:dry": "node scripts/cleanup-memory.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^4.1.1",
+    "typescript": "^5.7.0"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "id": "55975e886566",
+  "title": "project-asaiwebagent",
+  "content": "# project-asaiwebagent\n\n## 2026-09-09 [project, ide-hosts, architecture, memory]\n游梦鱼数字人库（asaiwebagent）架构与约定要点（由 .workbuddy/memory 折叠归位至此，宿主侧不再独立维护记忆副本）：\n\n- **多 IDE 宿主投影**：人格真源 = .youmengyu + AGENTS.md + .cursor/skills；Cursor 全量、其余宿主投影精选集 13 个（置顶「游梦鱼-宿主接入」）。config/ide-hosts.json 画像、config/ide-host-skills.json 集合、config/ide-host-adapt.json 措辞适配（禁裸 Cursor→IDE 替换）。\n- **命令**：install:twin（全量+Cursor）/ install:hosts（--hosts-only 安全阀）/ twin:host:seed|undo（AGENTS.md 常驻块播种 1024B）/ twin:host:report（收尾上报工作中心+情景记忆）/ 基线 node scripts/ide-host-baseline.mjs --save|--check。\n- **宿主铁律**：源文件一字不动（适配只发生在写盘副本）；配置缺失降级全量；残留清理双判据（投影标记 or taskflow/noise 命名）；新增技能 description ≤160B（alwaysBytes 6012/6144，余 132B）。\n- **宿主+插件骨架**：capability-types.ts = 宪法（参考 VS Code/Electron/OpenHands）；memory-layers.ts 四层记忆（core/semantic/episodic/procedural）；mapek-loop.ts MAPE-K 自进化——骨架在但此前空转，P0 已接上 host-task-report。\n- **记忆归位（2026-09-09 起）**：项目记忆只写 .youmengyu/memory 四层 + asai-memory 兼容接收；不再写 .workbuddy/memory 副本。\n- **工作中心入账**：Cursor 靠 afterAgentResponse hook；无 hooks 宿主收尾固定 npm run twin:host:report（--cwd --task --summary --host workbuddy；--status failed）。\n- **测试坑**：Git Bash /tmp ≠ Node D:\\tmp（假绿）；asaitest 末尾摘要可能读 reports/latest 旧值，以最新时间戳 report.json 为准；本机不稳定项 = 实测/spawn/删文件类（hook-perf/batEntry/evolution-distill/中文rmSync/safe-delete），纯逻辑用例全过。\n- **红线**：禁止自动 git add/commit/push；密钥不进代码；dashboard 端口占用静默 kill 再起；改动不破坏既有功能。\n\n## 2026-09-09 [workbuddy, host-report, episodic]\n宿主收尾上报工具 host-task-report：scripts/host-task-report.ts（tsx 跑），复用 lib/session-registry.recordTwinSession + src/memory-layers.appendEpisodic；防误写守护——显式 data-root 必须自证（含 asai-memory/asai-store/asai-www）否则拒绝，防止测试目录解析回落真实灵魂数据。单测 .youmengyu/test/unit/src/host-task-report.test.ts 4 例。\n\n## P3 自主意识三支点（2026-09-09）\n- 目标层：`twin:goals` 维护 core/goals.md，常驻块注入「当前目标」（HOST_BLOCK_BUDGET=1280，与 digest 摘要块 1536 保持\"更省\"不变量）\n- 心跳：`twin:heartbeat` 每日 03:30 由 WorkBuddy 自动化触发（automation id 904f103a）；一拍 = evolve→叙事→练习(≤2 inbox)→bench→stability\n- 叙事：`twin:self-narrative --write` 幂等写 evolution/narrative.md（同日替换）\n- 好奇心：self-practice 自动并入 explore-unknown 探索任务（领域词 2-gram 盲区检测）\n- self-bench：8 项加权（满分 100），下滑 ≥10 报人格回归，记 evolution/bench.jsonl\n- dream：procedural 规整+记忆去重，默认 dry-run，--apply 先备份\n- self-debate：三方辩论（架构师/怀疑者/用户代理）复用 roundtables/ 格式，裁决入 asai-memory/judgments.jsonl\n- awareness：`twin:awareness` 开场环境简报（git 做差/队列/节奏/目标），状态存 evolution/awareness.json",
+  "tags": [
+    "architecture"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-24T07:52:29.933Z",
+  "updatedAt": "2026-11-24T07:52:29.933Z",
+  "source": ".youmengyu/memory/semantic/project-asaiwebagent.md",
+  "uses": 0,
+  "space": "数字人",
+  "facts": [
+    "# project-asaiwebagent",
+    "## 2026-09-09 [project, ide-hosts, architecture, memory]",
+    "游梦鱼数字人库（asaiwebagent）架构与约定要点（由 .workbuddy/memory 折叠归位至此，宿主侧不再独立维护记忆副本）：",
+    "多 IDE 宿主投影**：人格真源 = .youmengyu + AGENTS.md + .cursor/skills；",
+    "Cursor 全量、其余宿主投影精选集 13 个（置顶「游梦鱼-宿主接入」）。",
+    "config/ide-hosts.json 画像、config/ide-host-skills.json 集合、config/ide-host-adapt.json 措辞适配（禁裸 Cursor→IDE 替换）。",
+    "命令**：install:twin（全量+Cursor）/ install:hosts（--hosts-only 安全阀）/ twin:host:seed|undo（AGENTS.md 常驻块播种 1024B）/ twin:host:report（收尾上报工作中心+情景记忆）/ 基线 node scripts/ide-host-baseline.mjs --save|--check。",
+    "宿主铁律**：源文件一字不动（适配只发生在写盘副本）；"
+  ],
+  "metadata": {
+    "来源": "游梦鱼数字人",
+    "文件": ".youmengyu/memory/semantic/project-asaiwebagent.md"
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": []
+}

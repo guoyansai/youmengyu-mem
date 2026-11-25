@@ -1,0 +1,16 @@
+{
+  "mode": "dry-run",
+  "aggressive": false,
+  "totalBefore": 18,
+  "wouldRemove": 0,
+  "breakdown": {
+    "pureFailure": 0,
+    "taskOnly": 0,
+    "noSolution": 0,
+    "templateNoise": 0,
+    "duplicateCopy": 0
+  },
+  "details": [],
+  "bytesSaved": 0,
+  "remaining": 18
+}

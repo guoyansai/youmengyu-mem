@@ -1,0 +1,37 @@
+{
+  "id": "db2959631729",
+  "title": "重复构建必须验二次-宿主safe-delete钩子会代理fs删除-生成目录改用同",
+  "content": "教训（codebuddy 2026-11-16T01:58:24.672Z）：重复构建必须验二次，宿主safe-delete钩子会代理fs删除，生成目录改用同盘rename并关闭Vite emptyOutDir",
+  "tags": [
+    "lesson"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-24T07:52:29.961Z",
+  "updatedAt": "2026-11-25T03:02:36.111Z",
+  "source": ".youmengyu/memory/procedural/重复构建必须验二次-宿主safe-delete钩子会代理fs删除-生成目录改用同.md",
+  "uses": 0,
+  "pinned": false,
+  "space": "数字人",
+  "facts": [
+    "教训（codebuddy 2026-11-16T01:58:24.672Z）：重复构建必须验二次，宿主safe-delete钩子会代理fs删除，生成目录改用同盘rename并关闭Vite emptyOutDir"
+  ],
+  "metadata": {
+    "来源": "游梦鱼数字人",
+    "文件": ".youmengyu/memory/procedural/重复构建必须验二次-宿主safe-delete钩子会代理fs删除-生成目录改用同.md"
+  },
+  "archived": false,
+  "isLatest": false,
+  "relations": [],
+  "versions": [
+    {
+      "title": "重复构建必须验二次-宿主safe-delete钩子会代理fs删除-生成目录改用同",
+      "content": "教训（codebuddy 2026-11-16T01:58:24.672Z）：重复构建必须验二次，宿主safe-delete钩子会代理fs删除，生成目录改用同盘rename并关闭Vite emptyOutDir",
+      "tags": [
+        "lesson"
+      ],
+      "importance": 4,
+      "updatedAt": "2026-11-24T11:42:06.663Z",
+      "note": "合并前"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "id": "a6acff7b9d1a",
+  "title": "巡检发现以下问题，请逐项排查并修复，完成后跑通相关检查：",
+  "content": "- 失败：patrol: code-patrol\n\n# 自动巡检：修复 webtuv 的代码健康问题\n\n巡检发现以下问题，请逐项排查并修复，完成后跑通相关检查：\n\n- [LOW] lint 未通过（> eslint .）\n- [MED] typecheck 未通过（> vue-tsc --noEmit）\n- [MED] 依赖存在 2 个高危漏洞\n\n要求：最小改动；修复",
+  "tags": [
+    "lesson"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-24T07:52:29.896Z",
+  "updatedAt": "2026-11-24T07:52:29.896Z",
+  "source": ".youmengyu/memory/semantic/lessons.md",
+  "uses": 0,
+  "space": "数字人",
+  "facts": [
+    "失败：patrol: code-patrol",
+    "# 自动巡检：修复 webtuv 的代码健康问题",
+    "巡检发现以下问题，请逐项排查并修复，完成后跑通相关检查：",
+    "[LOW] lint 未通过（> eslint .）",
+    "[MED] typecheck 未通过（> vue-tsc --noEmit）",
+    "[MED] 依赖存在 2 个高危漏洞",
+    "要求：最小改动；"
+  ],
+  "metadata": {
+    "来源": "游梦鱼数字人",
+    "文件": ".youmengyu/memory/semantic/lessons.md",
+    "片段": "2026-09-28T01:59",
+    "宿主": ""
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": []
+}

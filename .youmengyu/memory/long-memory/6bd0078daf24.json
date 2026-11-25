@@ -1,0 +1,40 @@
+{
+  "id": "6bd0078daf24",
+  "title": "user-preferences",
+  "content": "# user-preferences\n## 2026-09-09T07:24:57.053Z\n主人偏好：最小改动原则、省 token、不破坏已有功能\n\n## 2026-09-09T07:25:07.978Z\n主人偏好：最小改动原则、省 token、不破坏已有功能",
+  "tags": [
+    "preference"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-24T07:52:29.943Z",
+  "updatedAt": "2026-11-25T03:02:36.093Z",
+  "source": ".youmengyu/memory/semantic/user-preferences.md",
+  "uses": 0,
+  "pinned": false,
+  "space": "数字人",
+  "facts": [
+    "# user-preferences",
+    "## 2026-09-09T07:24:57.053Z",
+    "主人偏好：最小改动原则、省 token、不破坏已有功能",
+    "## 2026-09-09T07:25:07.978Z"
+  ],
+  "metadata": {
+    "来源": "游梦鱼数字人",
+    "文件": ".youmengyu/memory/semantic/user-preferences.md"
+  },
+  "archived": false,
+  "isLatest": false,
+  "relations": [],
+  "versions": [
+    {
+      "title": "user-preferences",
+      "content": "# user-preferences\n## 2026-09-09T07:24:57.053Z\n主人偏好：最小改动原则、省 token、不破坏已有功能\n\n## 2026-09-09T07:25:07.978Z\n主人偏好：最小改动原则、省 token、不破坏已有功能",
+      "tags": [
+        "preference"
+      ],
+      "importance": 4,
+      "updatedAt": "2026-11-24T11:42:06.678Z",
+      "note": "合并前"
+    }
+  ]
+}

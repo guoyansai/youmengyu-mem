@@ -1,0 +1,26 @@
+{
+  "id": "bf0c008d8655",
+  "title": "CLI 写盘前数据根校验",
+  "content": "新增会写盘的 CLI 必须先通过 lib/data-root-guard.mjs 进行 data-root 认证，防止误写；超期判定按 episodic 文件名日期。",
+  "tags": [
+    "decision"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-24T11:42:06.668Z",
+  "updatedAt": "2026-11-24T11:42:06.668Z",
+  "source": "ai:consolidate",
+  "uses": 0,
+  "space": "default",
+  "facts": [
+    "新增会写盘的 CLI 必须先通过 lib/data-root-guard.mjs 进行 data-root 认证，防止误写；",
+    "超期判定按 episodic 文件名日期。"
+  ],
+  "metadata": {
+    "by": "ai-organizer",
+    "mergedFrom": "bad6fda7155c,ec6ef3b6326e"
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": []
+}

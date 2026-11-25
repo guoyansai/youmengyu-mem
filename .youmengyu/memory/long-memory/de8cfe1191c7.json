@@ -1,0 +1,27 @@
+{
+  "id": "de8cfe1191c7",
+  "title": "JS 正则跨行解析技巧",
+  "content": "JS 正则没有 \\Z 锚（是字面量 Z）——跨行段落解析请使用 indexOf/索引切片法，而非 (?=...|\\Z)；改库函数时测试断言需与实现同步。",
+  "tags": [
+    "decision"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-24T11:42:06.672Z",
+  "updatedAt": "2026-11-24T11:42:06.672Z",
+  "source": "ai:consolidate",
+  "uses": 0,
+  "space": "default",
+  "facts": [
+    "JS 正则没有 \\Z 锚（是字面量 Z）——跨行段落解析请使用 indexOf/索引切片法，而非 (?",
+    "=...|\\Z)；",
+    "改库函数时测试断言需与实现同步。"
+  ],
+  "metadata": {
+    "by": "ai-organizer",
+    "mergedFrom": "1de845bd7239,65cf42bbf69e"
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": []
+}

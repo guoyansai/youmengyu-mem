@@ -1,0 +1,32 @@
+{
+  "id": "969d9c0512ba",
+  "title": "仓库架构记忆 — asaiwebagent",
+  "content": "# 仓库架构记忆 — asaiwebagent\n\n> Git remote: `https://gitee.com/guoyansai/asaiwebagent202607.git`\n> slug: `gitee-com-guoyansai-asaiwebagent202607`\n> 默认分支: `master`\n> 最近更新: 2026-08-30 00:58 · 主机 192.168.2.111\n> 已知路径: `D:/Web/AITest/asaiwebagent` · `/Users/asai/asaiwebagent202607` · `D:/Web/asaiwebagent`\n\n## 工作范式\n\n- 本仓高频标签：general、security、dashboard（近 4 条）\n\n## 架构概览\n\n- 插件文档规则已落地：18 份 README（前后端各 9）+ .cursor/rules/plugin-docs.mdc + .twin/memory 第10条 + plan001 §3/§4.3；函数注释已补全关键导出。 --cwd d:/Web/Git/webtuv (2026-07-30)\n- 可部署配置整理：前端 public/webmodel/config/{server,plugs}.json；后端 webserver/config/{server,plugs}.json；旧 host.json 已移除。 --cwd d:/Web/Git/webtuv (2026-07-30)\n- 运维 digest 小msg 改为系统通用 AI 热点（lib/persona-voice-core.mjs），去掉战果汇报开场白；未自动提交 (2026-07-31)\n- 2026-08-15 asaiprint：确认打印 ANR 已修。onConfirm → confirmPreviewPrintAsync，io 子线程光栅/USB，main 回调。回归 print-async.test.mjs。HBuilderX 真机需再点一次确认打印验证 Loading 能转、界面不卡。 --cwd /Users/asai/asaiprint (2026-08-15)\n\n- 2026-08-28 我的家 lists：可改清单名与条目；操作日志挂 CheckList.ops，只写本插件文档。asaitest 772/772。 (2026-08-28)\n\n- 2026-09-09 多 IDE 宿主：WorkBuddy / Trae / Claude Code 无常驻规则注入点、也无 hooks，常驻人格改走「工作区 AGENTS.md 托管块」播种（lib/ide-host-agents.mjs + scripts/ide-host-agents.mjs，块预算 1024B）。技能精选集 13 个（置顶「游梦鱼-宿主接入」）。Cursor 侧零影响。 (2026-09-09)\n\n## 关键模块\n\n- 源码文件：854\n- 核心模块（被依赖最多）：\n- src/paths（被引 90）\n- lib/asai-paths（被引 72）\n- dashboard/server/status（被引 47）\n- dashboard/web/src/api/twinApi（被引 39）\n- dashboard/server/router（被引 32）\n- dashboard/server/team-loop（被引 31）",
+  "tags": [
+    "architecture"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-24T07:52:29.963Z",
+  "updatedAt": "2026-11-24T07:52:29.963Z",
+  "source": ".youmengyu/memory/repo.md",
+  "uses": 0,
+  "space": "数字人",
+  "facts": [
+    "# 仓库架构记忆 — asaiwebagent",
+    "Git remote: `https://gitee.com/guoyansai/asaiwebagent202607.git`",
+    "slug: `gitee-com-guoyansai-asaiwebagent202607`",
+    "默认分支: `master`",
+    "最近更新: 2026-08-30 00:58 · 主机 192.168.2.111",
+    "已知路径: `D:/Web/AITest/asaiwebagent` · `/Users/asai/asaiwebagent202607` · `D:/Web/asaiwebagent`",
+    "## 工作范式",
+    "本仓高频标签：general、security、dashboard（近 4 条）"
+  ],
+  "metadata": {
+    "来源": "游梦鱼数字人",
+    "文件": ".youmengyu/memory/repo.md"
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": []
+}

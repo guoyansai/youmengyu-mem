@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "joinedAt": "2026-11-25T03:28:00.226Z",
+  "joinedAt": "2026-11-25T07:14:36.380Z",
   "ttlMs": 480000,
-  "conversationId": "9b63ce34-f2c9-4854-bf7e-a0f251ab3df8",
+  "conversationId": "0d6ad0f2-00d3-4eec-b92b-d077deae01f9",
   "cwd": "D:/Web/aicodingmem",
   "host": "cursor",
   "hosts": [],
@@ -11,47 +11,50 @@
     "token",
     "grow"
   ],
-  "coach": "【数字人在线介入】数字人已启动，中途接入本会话。\n提速：禁止整库盲探；先 AGENTS 摘要 + repo-熟悉-*。省 token：禁止复述与长分析；直接动手。成长：本轮结束写一句教训（≤80字），勿写密钥。\n宿主：cursor\n原始任务：记忆面板的 列表有问题 自行测试确保所有交互正常AI立即整理记忆的按钮 重新设计一下 不能和刷新的雷同",
+  "coach": "【数字人在线介入】数字人已启动，中途接入本会话。\n提速：禁止整库盲探；先 AGENTS 摘要 + repo-熟悉-*。省 token：禁止复述与长分析；直接动手。成长：本轮结束写一句教训（≤80字），勿写密钥。\n宿主：cursor\n原始任务：Briefly inform the user about the task result and perform any follow-up actions (if needed). If there's no follow-ups needed, don't explicitly say that.",
   "assist": {
     "version": 2,
-    "at": "2026-11-25T03:28:00.226Z",
+    "at": "2026-11-25T07:14:36.380Z",
     "host": "cursor",
     "cwd": "D:/Web/aicodingmem",
-    "conversationId": "9b63ce34-f2c9-4854-bf7e-a0f251ab3df8",
-    "promptFp": "896b43c07825",
-    "intent": "notes",
-    "confidence": 0.88,
-    "engine": "keyword-stub",
-    "actor": "youmengyu-model",
-    "route": "LOCAL",
-    "tokenSaved": true,
-    "local": true,
-    "lane": "answer",
+    "conversationId": "0d6ad0f2-00d3-4eec-b92b-d077deae01f9",
+    "promptFp": "7cd4f8c0c4b7",
+    "intent": "code_agent",
+    "confidence": 0.99,
+    "engine": "host-system",
+    "actor": "code_agent",
+    "route": "CLOUD",
+    "tokenSaved": false,
+    "local": false,
+    "lane": "coach",
     "localReply": "",
     "handled": false,
+    "coach": {
+      "goal": "改代码：Grep 定位后再读片段；工具回执只留结论。",
+      "paths": [],
+      "accept": "改完只跑本改动对应的测试",
+      "skip": [
+        "整库盲探",
+        "整文件通读",
+        "复述需求",
+        "长分析"
+      ]
+    },
     "first": [
-      "npm run cmd -- twin:model",
-      "独立模型 notes"
+      "AGENTS.md 摘要",
+      "repo-熟悉-*"
     ],
     "skip": [
-      "mem_recall",
-      "long-memory",
-      "整篇 collection",
-      "编造记忆",
-      "mem_context",
-      "mem_review"
+      "整库盲探",
+      "整文件通读",
+      "复述需求",
+      "长分析"
     ],
-    "blockSkills": [
-      "long-memory"
-    ],
-    "blockMcp": [
-      "mem_recall",
-      "mem_context",
-      "mem_review"
-    ],
+    "blockSkills": [],
+    "blockMcp": [],
     "evidenceLine": "",
     "evidence": [],
     "note": "",
-    "briefing": "【独立模型】notes 0.88\n翻记忆：独立模型当场做，禁止 mem_recall / long-memory。\n先：npm run cmd -- twin:model · 独立模型 notes\n禁：mem_recall · long-memory · 整篇 collection · 编造记忆 · mem_context · mem_review"
+    "briefing": "【独立模型】code_agent 0.99\n改代码：Grep 定位后再读片段；工具回执只留结论。\n先：AGENTS.md 摘要 · repo-熟悉-*\n禁：整库盲探 · 整文件通读 · 复述需求 · 长分析"
   }
 }

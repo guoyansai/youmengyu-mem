@@ -1,0 +1,38 @@
+{
+  "id": "432be47f4f3d",
+  "title": "模型能做的（日程/口算/本地记忆/本仓文档/寒暄）禁止走 Skill/MCP；",
+  "content": "模型能做的（日程/口算/本地记忆/本仓文档/寒暄）禁止走 Skill/MCP；",
+  "tags": [
+    "preference"
+  ],
+  "importance": 5,
+  "createdAt": "2026-11-25T05:10:38.980Z",
+  "updatedAt": "2026-11-25T05:59:49.469Z",
+  "source": "agent:2d14f60c-04a2-4a38-84ad-0a3c256bac86",
+  "uses": 0,
+  "pinned": false,
+  "space": "default",
+  "facts": [
+    "模型能做的（日程/口算/本地记忆/本仓文档/寒暄）禁止走 Skill/MCP；"
+  ],
+  "metadata": {
+    "by": "agent-learn",
+    "kind": "rule",
+    "session": "2d14f60c-04a2-4a38-84ad-0a3c256bac86"
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": [
+    {
+      "title": "模型能做的（日程/口算/本地记忆/本仓文档/寒暄）禁止走 Skill/MCP；",
+      "content": "模型能做的（日程/口算/本地记忆/本仓文档/寒暄）禁止走 Skill/MCP；",
+      "tags": [
+        "preference"
+      ],
+      "importance": 4,
+      "updatedAt": "2026-11-25T05:10:38.980Z",
+      "note": "元信息调整前"
+    }
+  ]
+}

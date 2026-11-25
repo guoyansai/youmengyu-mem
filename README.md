@@ -29,11 +29,13 @@ AI 编程助手（Copilot / Cursor / Cline / Claude Code / 各类 Agent）每次
 
 ## 使用
 
-安装并打开工作区后即自动开始，不必再点命令：
+安装并打开工作区后即自动开始，不必再启动数字人进程，也不必再点命令：
 
 - **记住当前 Agent 的全部对话**：读取本机 Cursor 里该仓库的 Agent 记录，每段对话收成一条可检索记忆（空间「agent」，不挤进注入块）
 - **学习并强化长记忆**：从对话里抽出「必须 / 禁止 / 约定 / 教训」等句子写入长记忆；同一约定再次出现时重要性 +1，直到 P5 进入仓库画像
+- **本机接管数字人日常能力**：在当前仓库写守则、当前焦点和代码风格（空间「本机」），并写开工简报与叙事。身份和目标文件已存在则不覆盖。正文完全相同的重复记忆会归档一份、保留更重要的那份
 - **自动辅助编程**：把长记忆写进 `AGENTS.md`（标记对之外的项目规则保持不动）。Agent 开工先读到这些约定，能确定的直接执行
+- **起草提交说明**：命令「游梦鱼·长记忆: 起草提交说明」按未提交路径写入 Changes 框，不执行提交
 
 1. 打开任意工作区，`Ctrl+Alt+Shift+M` 或侧栏 ➕ 添加记忆（编辑器选中文本可直接入库，流程里可选标签、重要性、空间）
 2. `Ctrl+Alt+M` 搜索记忆；侧栏按标签浏览，右键编辑/置顶/归档/移动空间/查看详情/删除
@@ -79,8 +81,9 @@ AI 编程助手（Copilot / Cursor / Cline / Claude Code / 各类 Agent）每次
 | `aimemory.maxInjectEntries` | `60` | 注入块最多条数（画像优先，其余按重要性补齐） |
 | `aimemory.autoInject` | `true` | 安装后自动把长记忆写入注入文件，供当前 Agent 开工读取；内容未变不写盘 |
 | `aimemory.autoAgentMemory` | `true` | 自动记住当前工作区 Agent 对话，并提炼、强化长记忆。关闭则停止监听 |
-| `aimemory.youmengyuRoot` | `D:/Web/asaiwebagent` | 游梦鱼数字人仓库根目录（数字人记忆导入的数据源） |
-| `aimemory.youmengyuAutoImport` | `true` | 激活时自动导入数字人记忆（同内容幂等合并，仅新增时提示） |
+| `aimemory.localTwin` | `true` | 在当前仓库内接管守则、焦点、风格、开工简报、叙事和重复归档。关闭则停止自动一拍 |
+| `aimemory.youmengyuRoot` | `D:/Web/asaiwebagent` | 旧数字人仓库根目录，仅用于一次性迁移历史记忆 |
+| `aimemory.youmengyuAutoImport` | `true` | 激活时把旧数字人记忆迁入当前仓库。日常辅助不依赖该目录 |
 
 ## 隐私
 

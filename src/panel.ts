@@ -1,12 +1,26 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
+import { listRecentCommits } from './add';
 import { DEFAULT_SPACE, MemoryStore, SortMode, spaceLabel } from './store';
 import { isExpired } from './clean';
 import { MEMORY_TAGS, MemoryEntry, MemoryVersion, TAG_LABEL } from './types';
 import { AI_SETTINGS_MSGS, AiSettingsController } from './ai/settings-panel';
+import { buildFullContext, generateInject } from './inject';
 
-type PanelTab = 'memory' | 'ai';
+type PanelTab = 'memory' | 'compose' | 'git' | 'profile' | 'io' | 'ai';
+
+const PANEL_TABS: PanelTab[] = ['memory', 'compose', 'git', 'profile', 'io', 'ai'];
+
+function asTab(v: unknown): PanelTab {
+  const tab = String(v || '');
+  return (PANEL_TABS as string[]).includes(tab) ? (tab as PanelTab) : 'memory';
+}
+
+/** Cursor 的活动栏 webview 经常是一块空白，编辑区面板才能看得见。 */
+function isCursorHost(): boolean {
+  return /cursor/i.test(vscode.env.appName || '');
+}
 
 interface PanelState {
   query: string;
@@ -33,33 +47,23 @@ const SORT_ITEMS: Array<{ value: SortMode; label: string }> = [
 
 /** 虚拟列表分页：每页推给前端的行数（滚动近底部时继续拉取） */
 const PAGE_SIZE = 200;
+/** 首屏 HTML 只带一小页，避免安装后的侧边栏视图被大文档卡住 */
+const FIRST_PAINT = 40;
+/** 打开面板后等侧栏视图解析的时长，超时就在编辑区打开 */
+const VIEW_RESOLVE_MS = 800;
 
+/** 面板按钮白名单。只处理这些动作，不把任意字符串交给命令系统。 */
 const ACTION_COMMANDS: Record<string, string> = {
-  add: 'aimemory.add',
-  addSelection: 'aimemory.addSelection',
-  git: 'aimemory.git.lessons',
-  inject: 'aimemory.inject.generate',
-  copyAll: 'aimemory.inject.copyAll',
-  search: 'aimemory.search',
-  export: 'aimemory.export',
-  import: 'aimemory.import',
-  youmengyu: 'aimemory.import.youmengyu',
-  refresh: 'aimemory.refresh',
-  aiOrganize: 'aimemory.ai.organize',
-};
-
-const ACTION_TOAST: Record<string, string> = {
-  add: '已打开新建记忆',
-  addSelection: '已从选中文本新建记忆',
-  git: '已触发 Git 提交提炼',
-  inject: '已生成注入块 → AGENTS.md',
-  copyAll: '已复制全部上下文到剪贴板',
-  search: '已打开快速搜索',
-  export: '已导出 JSON',
-  import: '已从 JSON 导入',
-  youmengyu: '已触发数字人记忆导入',
-  refresh: '已刷新工作区绑定',
-  aiOrganize: 'AI 整理已执行',
+  add: 'compose',
+  git: 'git',
+  inject: 'inject',
+  copyAll: 'copy',
+  search: 'search',
+  export: 'io',
+  import: 'io',
+  youmengyu: 'io',
+  refresh: 'refresh',
+  aiOrganize: 'organize',
 };
 
 const ICONS: Record<string, string> = {
@@ -172,6 +176,9 @@ export class MemoryPanel implements vscode.WebviewViewProvider {
   private readonly context: vscode.ExtensionContext;
   private store: MemoryStore | undefined;
   private view: vscode.WebviewView | undefined;
+  /** Cursor 里侧栏 webview 不绘制时，同一份页面开在编辑区 */
+  private editor: vscode.WebviewPanel | undefined;
+  private painted = new WeakSet<vscode.Webview>();
   private state: PanelState = { ...DEFAULT_STATE };
   /** 当前已渲染的仓库根（用于切换工作区时重绘） */
   private renderedRoot: string | undefined;
@@ -183,10 +190,21 @@ export class MemoryPanel implements vscode.WebviewViewProvider {
   private resultIds: string[] = [];
   /** 每次推送结果 +1。过期的 loadMore 回包 epoch 对不上，前端丢弃，避免拼进新列表 */
   private viewEpoch = 0;
-  /** 当前标签页：记忆列表 / AI 服务设置（同视图内切换，不另开页面） */
+  /** 当前标签页。全部页面都在这个侧边栏视图里切换 */
   private tab: PanelTab = 'memory';
   /** AI 服务设置控制器（extension.ts 装配后经 attachAi 注入） */
   private ai?: AiSettingsController;
+  /** 整理与数字人导入由 extension 装配，避免面板去弹系统窗口 */
+  private extra: {
+    organize?: () => Promise<string>;
+    youmengyu?: (root: string) => Promise<string>;
+  } = {};
+  private composePreset: { content: string; source: string } = { content: '', source: '' };
+  /** 同一筛选下的结果缓存。loadMore 不再把全库重扫一遍 */
+  private filteredEntries: MemoryEntry[] | null = null;
+  private confirms = new Map<string, (ok: boolean) => void>();
+  private pendingNote: { text: string; kind?: 'warn' } | undefined;
+  private pendingFocus = false;
 
   constructor(context: vscode.ExtensionContext, store: MemoryStore) {
     this.context = context;
@@ -196,38 +214,92 @@ export class MemoryPanel implements vscode.WebviewViewProvider {
   /** 注入 AI 服务设置控制器（引擎在面板之后创建，故后置装配） */
   attachAi(ai: AiSettingsController): void {
     this.ai = ai;
-    if (this.view) ai.setView(this.view.webview);
+    const primary = this.primaryWebview();
+    if (primary) ai.setView(primary);
   }
 
-  /** 打开「AI 服务设置」标签页（命令面板 / 标题栏齿轮入口，同视图内切换） */
+  bindExtra(extra: { organize?: () => Promise<string>; youmengyu?: (root: string) => Promise<string> }): void {
+    this.extra = extra;
+  }
+
+  /** 打开「AI 服务设置」标签页 */
   showAiSettings(): void {
-    if (!this.store?.workspaceRoot) {
-      void vscode.window.showWarningMessage('游梦鱼·长记忆: 请先打开一个工作区（文件夹），再打开 AI 服务设置');
-      return;
-    }
-    this.tab = 'ai';
-    if (this.view) {
-      void this.view.webview.postMessage({ type: 'tabState', tab: 'ai' });
-      void this.ai?.push();
-    }
-    void vscode.commands.executeCommand(`${MemoryPanel.viewId}.focus`);
+    this.openTab('ai');
   }
 
-  /** 在侧边栏视图内打开记忆面板（复用同一个 WebviewView，不再新开编辑器标签页） */
-  show(store: MemoryStore, entryId?: string): void {
-    if (!store.workspaceRoot) {
-      void vscode.window.showWarningMessage('游梦鱼·长记忆: 请先打开一个工作区（文件夹），再打开记忆面板');
+  /** 切到插件内的某个标签。视图还没创建时记下 tab，首帧 HTML 直接落在这一页 */
+  openTab(tab: PanelTab, preset?: { content?: string; source?: string }): void {
+    this.tab = tab;
+    if (preset) this.composePreset = { content: preset.content || '', source: preset.source || '' };
+    void this.reveal();
+    if (!this.alive()) return;
+    this.post({ type: 'tabState', tab });
+    void this.afterTab(tab);
+  }
+
+  focusSearch(): void {
+    this.pendingFocus = true;
+    this.openTab('memory');
+    this.flushFocus();
+  }
+
+  note(text: string, kind?: 'warn'): void {
+    if (this.alive()) this.toast(text, kind);
+    else {
+      this.pendingNote = { text, kind };
+      void this.reveal();
+    }
+  }
+
+  openEditor(id: string): void {
+    this.openTab('memory');
+    this.postEditor(id);
+  }
+
+  async removeWithConfirm(id: string): Promise<void> {
+    const entry = this.store?.entries.find((e) => e.id === id);
+    if (!entry) return;
+    this.openTab('memory');
+    if (!(await this.askConfirm(`删除记忆「${entry.title}」？删除后不可恢复。`, '删除'))) return;
+    this.store?.remove(id);
+    this.toast('已删除');
+    this.push();
+  }
+
+  async injectNow(): Promise<void> {
+    const store = this.store;
+    if (!store?.workspaceRoot) {
+      this.note('请先打开一个工作区', 'warn');
       return;
     }
+    await generateInject(store, { silent: true });
+    this.note('已生成注入块');
+  }
+
+  async copyAll(): Promise<void> {
+    const store = this.store;
+    if (!store?.ready) {
+      this.note('请先打开一个工作区', 'warn');
+      return;
+    }
+    await vscode.env.clipboard.writeText(buildFullContext(store));
+    this.note('已复制全部上下文');
+  }
+
+  /** 打开记忆面板。Cursor 同时在编辑区打开同一页面，侧栏画不出来时仍能使用。 */
+  show(store: MemoryStore, entryId?: string): void {
     this.store = store;
     this.pendingDetail = entryId;
-    // 从 AI 设置标签页切回记忆标签页（有详情要展示时必然要看列表）
-    if (this.view && this.tab !== 'memory') {
-      this.tab = 'memory';
-      void this.view.webview.postMessage({ type: 'tabState', tab: 'memory' });
+    if (entryId) this.tab = 'memory';
+    void this.reveal();
+    if (!store.workspaceRoot) {
+      this.render();
+      return;
     }
-    if (this.view && this.renderedRoot === store.workspaceRoot) {
-      // 视图已是当前仓库的内容：直接刷新并把待打开的详情推过去，避免重置用户的筛选状态
+    if (this.alive() && entryId && this.tab === 'memory') {
+      this.post({ type: 'tabState', tab: 'memory' });
+    }
+    if (this.alive() && this.renderedRoot === store.workspaceRoot) {
       this.push();
       if (this.pendingDetail) {
         const pending = this.pendingDetail;
@@ -237,80 +309,240 @@ export class MemoryPanel implements vscode.WebviewViewProvider {
     } else {
       this.render();
     }
-    void vscode.commands.executeCommand(`${MemoryPanel.viewId}.focus`);
   }
 
   /** 工作区绑定变化后，若当前是占位页则换成正式面板 */
   notifyStoreChanged(): void {
     const root = this.store?.workspaceRoot;
-    if (this.view && root && this.renderedRoot !== root) this.render();
+    if (this.alive() && root && this.renderedRoot !== root) this.render();
   }
 
   /** 记忆数据变化（新增 / 提炼 / 导入 / 外部命令）后刷新视图内容 */
   refresh(): void {
-    if (this.view) this.push();
+    if (this.alive()) this.push();
   }
 
   resolveWebviewView(view: vscode.WebviewView): void {
     this.view = view;
-    view.webview.options = { enableScripts: true, localResourceRoots: [] };
+    view.webview.options = {
+      enableScripts: true,
+      localResourceRoots: [this.context.extensionUri],
+    };
     view.webview.onDidReceiveMessage((msg) => void this.handleMessage(msg));
-    this.ai?.setView(view.webview);
+    this.ensureCursorEditor();
+    const primary = this.primaryWebview();
+    if (primary) this.ai?.setView(primary);
     view.onDidChangeVisibility(() => {
-      if (view.visible) this.render();
+      if (!view.visible) return;
+      this.painted.delete(view.webview);
+      this.renderedRoot = undefined;
+      this.render();
     });
     view.onDidDispose(() => {
+      this.painted.delete(view.webview);
       this.view = undefined;
       this.openId = undefined;
       this.renderedRoot = undefined;
-      this.ai?.setView(undefined);
+      this.filteredEntries = null;
+      const next = this.primaryWebview();
+      if (next) this.ai?.setView(next);
+      else this.ai?.setView(undefined);
     });
     this.render();
-    // 上次停留在 AI 设置标签页（webview 重建后恢复）
-    if (this.tab === 'ai') void this.ai?.push();
+    // Cursor 会丢掉 resolve 同一拍里设置的 html，下一拍再画一次。
+    setTimeout(() => {
+      this.painted.delete(view.webview);
+      if (this.editor) this.painted.delete(this.editor.webview);
+      this.renderedRoot = undefined;
+      this.render();
+    }, 0);
+    void this.afterTab(this.tab);
+    if (this.pendingNote) {
+      const note = this.pendingNote;
+      this.pendingNote = undefined;
+      this.toast(note.text, note.kind);
+    }
+    this.flushFocus();
   }
 
-  /** 同一仓库只渲染一次，切换仓库或首次展示时才重绘 */
-  private render(): void {
-    const store = this.store;
-    const view = this.view;
-    if (!view) return;
-    const root = store?.workspaceRoot;
-    if (!root) {
-      view.webview.html = renderPlaceholder();
-      this.renderedRoot = undefined;
+  private flushFocus(): void {
+    if (!this.pendingFocus || !this.alive()) return;
+    this.pendingFocus = false;
+    this.post({ type: 'focusSearch' });
+  }
+
+  private surfaces(): vscode.Webview[] {
+    const list: vscode.Webview[] = [];
+    if (this.view) list.push(this.view.webview);
+    if (this.editor) list.push(this.editor.webview);
+    return list;
+  }
+
+  private alive(): boolean {
+    return Boolean(this.view || this.editor);
+  }
+
+  private primaryWebview(): vscode.Webview | undefined {
+    return this.editor?.webview || this.view?.webview;
+  }
+
+  private post(message: unknown): void {
+    for (const webview of this.surfaces()) void webview.postMessage(message);
+  }
+
+  /** Cursor 侧栏 webview 不绘制。点开插件时在编辑区放同一页面，方便看见。 */
+  private ensureCursorEditor(): void {
+    if (isCursorHost()) this.ensureEditor();
+  }
+
+  /** 在编辑区打开同一页面。侧栏画不出来的宿主或工作区都走这里。 */
+  private ensureEditor(): void {
+    if (this.editor) {
+      this.editor.reveal(vscode.ViewColumn.Active);
       return;
     }
-    if (this.renderedRoot === root) return;
-    view.webview.html = renderHtml(view.webview, store!, this.state, this.context, this.tab);
-    this.renderedRoot = root;
+    const panel = vscode.window.createWebviewPanel(
+      'aimemory.editor',
+      '记忆面板',
+      vscode.ViewColumn.Active,
+      { enableScripts: true, localResourceRoots: [this.context.extensionUri] }
+    );
+    this.editor = panel;
+    panel.webview.onDidReceiveMessage((msg) => void this.handleMessage(msg));
+    panel.onDidDispose(() => {
+      this.painted.delete(panel.webview);
+      if (this.editor === panel) this.editor = undefined;
+      const primary = this.primaryWebview();
+      if (primary) this.ai?.setView(primary);
+    });
+    const primary = this.primaryWebview();
+    if (primary) this.ai?.setView(primary);
+    this.renderedRoot = undefined;
+  }
+
+  /**
+   * 把插件栏展开并切到记忆视图。
+   * Cursor 不先 focus 主侧边栏：那一步会切回 Agent 栏，记忆页又变成空白。
+   * 编辑区面板同时打开，侧栏画不出来时仍能使用。
+   */
+  private async reveal(): Promise<void> {
+    this.ensureCursorEditor();
+    if (!isCursorHost()) {
+      try {
+        await vscode.commands.executeCommand('workbench.action.focusSideBar');
+      } catch {
+        /* 宿主没有侧边栏命令时继续走容器命令 */
+      }
+    }
+    try {
+      await vscode.commands.executeCommand('workbench.view.extension.aimemory');
+    } catch {
+      /* 部分宿主没有这条容器命令 */
+    }
+    try {
+      await vscode.commands.executeCommand(`${MemoryPanel.viewId}.focus`);
+    } catch {
+      /* 视图尚未注册完成时忽略 */
+    }
+    // 工作区里残留的视图布局会让宿主不再解析侧栏视图（容器点开一片空白），这时改在编辑区打开。
+    const fallback = !this.editor && !(await this.waitForView(VIEW_RESOLVE_MS));
+    if (fallback) this.ensureEditor();
+    if (this.editor) this.render();
+    if (fallback) this.afterOpen();
+  }
+
+  /** 只开了编辑区页面时，补上侧栏解析时会做的标签数据、提示和聚焦 */
+  private afterOpen(): void {
+    void this.afterTab(this.tab);
+    if (this.pendingNote) {
+      const note = this.pendingNote;
+      this.pendingNote = undefined;
+      this.toast(note.text, note.kind);
+    }
+    this.flushFocus();
+  }
+
+  /** 等侧栏视图被宿主解析并可见，超时返回 false */
+  private async waitForView(ms: number): Promise<boolean> {
+    const until = Date.now() + ms;
+    while (Date.now() < until) {
+      if (this.view?.visible) return true;
+      await new Promise((r) => setTimeout(r, 50));
+    }
+    return Boolean(this.view?.visible);
+  }
+
+  private async afterTab(tab: PanelTab): Promise<void> {
+    if (tab === 'ai') await this.ai?.push();
+    if (tab === 'git') this.postGit();
+    if (tab === 'compose') {
+      this.post({ type: 'compose', ...this.composePreset });
+    }
+    if (tab === 'io') this.postIo();
+  }
+
+  /** 同一仓库只渲染一次，切换仓库或首次展示时才重绘。侧栏和编辑区各画一份。 */
+  private render(): void {
+    const store = this.store;
+    const surfaces = this.surfaces();
+    if (!surfaces.length) return;
+    const root = store?.workspaceRoot;
+    try {
+      if (!root) {
+        for (const webview of surfaces) webview.html = renderPlaceholder();
+        this.renderedRoot = undefined;
+        return;
+      }
+      const pending = surfaces.filter((webview) => !this.painted.has(webview) || this.renderedRoot !== root);
+      if (!pending.length) return;
+      const matched = this.searchAll();
+      this.resultIds = matched.map((e) => e.id);
+      for (const webview of pending) {
+        webview.html = renderHtml(webview, store!, this.state, this.context, this.tab, this.composePreset, matched);
+        this.painted.add(webview);
+      }
+      this.renderedRoot = root;
+    } catch (err) {
+      this.renderedRoot = undefined;
+      for (const webview of surfaces) {
+        this.painted.delete(webview);
+        webview.html = renderBoom(err);
+      }
+    }
   }
 
   private toast(text: string, kind?: 'warn'): void {
-    void this.view?.webview.postMessage({ type: 'toast', text, kind });
+    this.post({ type: 'toast', text, kind });
   }
 
+  private filteredCount = -1;
+
   private searchAll(): MemoryEntry[] {
+    const n = this.store!.entries.length;
+    if (this.filteredEntries && this.filteredCount === n) return this.filteredEntries;
     const state = this.state;
-    return this.store!.search(state.query, {
+    this.filteredCount = n;
+    this.filteredEntries = this.store!.search(state.query, {
       tag: state.tag || undefined,
       space: state.space || undefined,
       sort: state.sort,
       includeArchived: state.archived,
       limit: Number.POSITIVE_INFINITY,
     });
+    return this.filteredEntries;
   }
 
   private push(): void {
+    this.filteredEntries = null;
     const store = this.store;
-    if (!this.view || !store?.workspaceRoot) return;
+    if (!this.alive() || !store?.workspaceRoot) return;
     const state = this.state;
     const entries = this.searchAll();
     this.resultIds = entries.map((e) => e.id);
     this.viewEpoch += 1;
     const filtered = Boolean(state.query || state.tag || state.space);
     const emptyKind = entries.length ? '' : store.entries.length ? (filtered ? 'filter' : 'view') : 'none';
-    void this.view.webview.postMessage({
+    this.post({
       type: 'results',
       epoch: this.viewEpoch,
       state,
@@ -326,50 +558,258 @@ export class MemoryPanel implements vscode.WebviewViewProvider {
 
   private postEditor(id: string): void {
     const store = this.store;
-    if (!store || !this.view) return;
+    if (!store || !this.alive()) return;
     const entry = store.entries.find((e) => e.id === id);
     if (!entry) return;
     this.openId = id;
-    void this.view.webview.postMessage({ type: 'editor', html: renderEditor(store, entry) });
+    this.post({ type: 'editor', html: renderEditor(store, entry) });
   }
 
   private postDetail(id: string): void {
     const store = this.store;
-    if (!store || !this.view) return;
+    if (!store || !this.alive()) return;
     const entry = store.entries.find((e) => e.id === id);
     if (!entry) return;
     this.openId = id;
-    void this.view.webview.postMessage({ type: 'detail', html: renderDetail(store, entry) });
+    this.post({ type: 'detail', html: renderDetail(store, entry) });
   }
 
-  /** 计算清理目标 id（all = 当前筛选结果全量；否则用前端传来的选中 id） */
-  private resolveBatchIds(all: boolean, ids: string[]): string[] {
-    if (all) return [...this.resultIds];
+  /** 计算清理目标 id（all = 当前筛选结果全量，except 是全选后取消的几条；否则用前端传来的选中 id） */
+  private resolveBatchIds(all: boolean, ids: string[], except: string[] = []): string[] {
+    if (all) {
+      if (!except.length) return [...this.resultIds];
+      const skip = new Set(except);
+      return this.resultIds.filter((id) => !skip.has(id));
+    }
     const have = new Set(this.store?.entries.map((e) => e.id) || []);
     return ids.filter((id) => have.has(id));
   }
 
+  private async askConfirm(text: string, okLabel = '确认'): Promise<boolean> {
+    if (!this.alive()) await this.reveal();
+    if (!this.alive()) return false;
+    const token = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+    return new Promise((resolve) => {
+      const done = (ok: boolean) => {
+        if (!this.confirms.has(token)) return;
+        this.confirms.delete(token);
+        resolve(ok);
+      };
+      this.confirms.set(token, done);
+      this.post({ type: 'confirm', token, text, okLabel });
+      setTimeout(() => done(false), 120000);
+    });
+  }
+
+  private postGit(): void {
+    const root = this.store?.workspaceRoot;
+    if (!root || !this.alive()) return;
+    try {
+      const commits = listRecentCommits(root);
+      this.post({ type: 'gitList', commits });
+    } catch {
+      this.post({ type: 'gitList', commits: [], error: '当前目录不是 Git 仓库' });
+    }
+  }
+
+  private postIo(): void {
+    const root = vscode.workspace.getConfiguration('aimemory').get<string>('youmengyuRoot', '');
+    this.post({ type: 'ioState', root });
+  }
+
+  private async createFrom(raw: unknown): Promise<void> {
+    const store = this.store;
+    if (!store?.workspaceRoot) return;
+    const patch = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
+    const content = String(patch.content || '');
+    const title = String(patch.title || '').trim() || content.trim().split('\n')[0].slice(0, 60);
+    if (!title || !content.trim()) {
+      this.toast('标题与正文不能为空', 'warn');
+      return;
+    }
+    const tags = Array.isArray(patch.tags) && patch.tags.length ? patch.tags.map(String) : ['other'];
+    const r = store.add({
+      title: title.slice(0, 200),
+      content,
+      tags,
+      importance: Number(patch.importance) || 3,
+      source: patch.source ? String(patch.source) : undefined,
+      space: String(patch.space || DEFAULT_SPACE),
+    });
+    this.toast(r.merged ? `已合并更新「${r.entry.title}」` : `已保存「${r.entry.title}」`);
+    this.tab = 'memory';
+    this.post({ type: 'tabState', tab: 'memory' });
+    this.push();
+    if (vscode.workspace.getConfiguration('aimemory').get<boolean>('autoInject', true)) {
+      void generateInject(store, { silent: true });
+    }
+  }
+
+  private importGit(hashes: string[], space: string): void {
+    const root = this.store?.workspaceRoot;
+    if (!root || !this.store) return;
+    let commits: Array<{ hash: string; date: string; subject: string }> = [];
+    try {
+      commits = listRecentCommits(root);
+    } catch {
+      this.toast('当前目录不是 Git 仓库', 'warn');
+      return;
+    }
+    const want = new Set(hashes);
+    let n = 0;
+    for (const c of commits) {
+      if (!want.has(c.hash)) continue;
+      this.store.add({
+        title: c.subject.slice(0, 200),
+        content: `${c.subject}\n\n来源 git ${c.hash} (${c.date})`,
+        tags: ['lesson'],
+        importance: 3,
+        source: `git ${c.hash} (${c.date})`,
+        space: space || DEFAULT_SPACE,
+      });
+      n += 1;
+    }
+    if (!n) {
+      this.toast('先勾选要提炼的提交', 'warn');
+      return;
+    }
+    this.toast(`已提炼 ${n} 条提交`);
+    this.tab = 'memory';
+    this.post({ type: 'tabState', tab: 'memory' });
+    this.push();
+  }
+
+  private async exportJson(writeFile: boolean): Promise<void> {
+    const store = this.store;
+    if (!store?.workspaceRoot) return;
+    const text = store.toJSONString();
+    if (writeFile) {
+      const file = path.join(store.workspaceRoot, '.youmengyu', 'runs', 'aimemory-export.json');
+      fs.mkdirSync(path.dirname(file), { recursive: true });
+      fs.writeFileSync(file, text, 'utf8');
+      this.toast('已写入 .youmengyu/runs/aimemory-export.json');
+    } else {
+      await vscode.env.clipboard.writeText(text);
+      this.toast('JSON 已复制');
+    }
+    this.post({ type: 'ioText', text });
+  }
+
+  private importJsonText(text: string): void {
+    if (!this.store?.workspaceRoot) return;
+    try {
+      const n = this.store.importJson(text);
+      this.toast(`导入完成，新增 ${n} 条`);
+      this.tab = 'memory';
+      this.post({ type: 'tabState', tab: 'memory' });
+      this.push();
+    } catch (err) {
+      this.toast(`导入失败 ${String(err)}`, 'warn');
+    }
+  }
+
+  private importPlain(title: string, content: string, space: string): void {
+    const body = content.trim();
+    if (!this.store?.workspaceRoot || !body) {
+      this.toast('正文不能为空', 'warn');
+      return;
+    }
+    const name = title.trim() || body.split('\n')[0].replace(/^#+\s*/, '').slice(0, 60);
+    this.store.add({ title: name, content: body, tags: ['fact'], space: space || DEFAULT_SPACE });
+    this.toast('已从正文导入');
+    this.tab = 'memory';
+    this.post({ type: 'tabState', tab: 'memory' });
+    this.push();
+  }
+
+  private async importYoumengyu(root: string): Promise<void> {
+    const dir = root.trim();
+    if (!dir) {
+      this.toast('请填写数字人仓库路径', 'warn');
+      return;
+    }
+    if (!this.extra.youmengyu) {
+      this.toast('导入还没准备好', 'warn');
+      return;
+    }
+    try {
+      this.toast(await this.extra.youmengyu(dir));
+      this.tab = 'memory';
+      this.post({ type: 'tabState', tab: 'memory' });
+      this.push();
+    } catch (err) {
+      this.toast(`导入失败 ${String(err)}`, 'warn');
+    }
+  }
+
+  private async runLocalAction(actionKey: string): Promise<void> {
+    if (!ACTION_COMMANDS[actionKey]) return;
+    switch (actionKey) {
+      case 'add':
+        this.openTab('compose');
+        return;
+      case 'search':
+        this.focusSearch();
+        return;
+      case 'git':
+        this.openTab('git');
+        return;
+      case 'import':
+      case 'export':
+      case 'youmengyu':
+        this.openTab('io');
+        return;
+      case 'inject':
+        await this.injectNow();
+        return;
+      case 'copyAll':
+        await this.copyAll();
+        return;
+      case 'refresh':
+        this.store?.bindWorkspace();
+        this.renderedRoot = undefined;
+        this.render();
+        this.push();
+        this.toast('已刷新工作区绑定');
+        return;
+      case 'aiOrganize': {
+        if (!this.extra.organize) {
+          this.toast('AI 整理还没准备好', 'warn');
+          return;
+        }
+        this.toast('正在整理…');
+        this.toast(await this.extra.organize());
+        this.push();
+        return;
+      }
+      default:
+        break;
+    }
+  }
+
   private async confirmBulk(label: string, count: number): Promise<boolean> {
-    const ok = await vscode.window.showWarningMessage(
-      `确认删除${label} ${count} 条记忆？删除后不可恢复（建议先「导出 JSON」备份）。`,
-      { modal: true },
+    return this.askConfirm(
+      `确认删除${label} ${count} 条记忆？删除后不可恢复。可以先到「导入」页复制 JSON 备份。`,
       '删除'
     );
-    return ok === '删除';
   }
 
   private async handleMessage(msg: any): Promise<void> {
-    const view = this.view;
-    if (!view) return;
+    const webview = this.primaryWebview();
+    if (!webview) return;
     const type = String(msg?.type || '');
     // AI 服务设置消息：转发给设置控制器（设置不依赖当前工作区）
     if (AI_SETTINGS_MSGS.includes(type)) {
-      void this.ai?.handle(msg, view.webview);
+      void this.ai?.handle(msg, webview);
+      return;
+    }
+    if (type === 'confirmAnswer') {
+      this.confirms.get(String(msg.token || ''))?.(Boolean(msg.ok));
       return;
     }
     if (type === 'tab') {
-      this.tab = msg.tab === 'ai' ? 'ai' : 'memory';
-      if (this.tab === 'ai') await this.ai?.push();
+      this.tab = asTab(msg.tab);
+      await this.afterTab(this.tab);
       return;
     }
     const store = this.store;
@@ -400,7 +840,7 @@ export class MemoryPanel implements vscode.WebviewViewProvider {
         const epoch = Number(msg.epoch) || 0;
         const offset = Math.max(0, Number(msg.offset) || 0);
         if (epoch !== this.viewEpoch) {
-          void view.webview.postMessage({
+          this.post({
             type: 'rows',
             stale: true,
             epoch,
@@ -412,7 +852,7 @@ export class MemoryPanel implements vscode.WebviewViewProvider {
         }
         const entries = this.searchAll();
         this.resultIds = entries.map((e) => e.id);
-        void view.webview.postMessage({
+        this.post({
           type: 'rows',
           epoch: this.viewEpoch,
           offset,
@@ -451,37 +891,36 @@ export class MemoryPanel implements vscode.WebviewViewProvider {
       case 'delete': {
         const entry = store.entries.find((e) => e.id === id);
         if (!entry) break;
-        const ok = await vscode.window.showWarningMessage(
-          `删除记忆「${entry.title}」？删除后不可恢复。`,
-          { modal: true },
-          '删除'
-        );
-        if (ok !== '删除') break;
+        if (!(await this.askConfirm(`删除记忆「${entry.title}」？删除后不可恢复。`, '删除'))) break;
         store.remove(entry.id);
         if (this.openId === id) {
           this.openId = undefined;
-          void view.webview.postMessage({ type: 'close' });
+          this.post({ type: 'close' });
         }
         this.toast('已删除');
         this.push();
         break;
       }
       case 'batchDelete': {
-        const ids = this.resolveBatchIds(Boolean(msg.all), Array.isArray(msg.ids) ? msg.ids.map(String) : []);
+        const ids = this.resolveBatchIds(
+          Boolean(msg.all),
+          Array.isArray(msg.ids) ? msg.ids.map(String) : [],
+          Array.isArray(msg.except) ? msg.except.map(String) : []
+        );
         if (!ids.length) {
           this.toast('没有可删除的条目', 'warn');
           break;
         }
         if (!(await this.confirmBulk('', ids.length))) break;
         const n = store.removeMany(ids);
-        void view.webview.postMessage({ type: 'deleted', count: n });
+        this.post({ type: 'deleted', count: n });
         this.toast(`已批量删除 ${n} 条`);
         this.push();
         break;
       }
       case 'scan': {
         const report = store.analyzeIssues();
-        void view.webview.postMessage({ type: 'scanReport', html: renderCleanupDrawer(report) });
+        this.post({ type: 'scanReport', html: renderCleanupDrawer(report) });
         break;
       }
       case 'cleanup': {
@@ -500,7 +939,7 @@ export class MemoryPanel implements vscode.WebviewViewProvider {
         }
         if (!(await this.confirmBulk('问题数据', ids.length))) break;
         const n = store.removeMany(ids);
-        void view.webview.postMessage({ type: 'deleted', count: n });
+        this.post({ type: 'deleted', count: n });
         this.toast(`一键整理完成：清理 ${n} 条`);
         this.push();
         break;
@@ -509,12 +948,10 @@ export class MemoryPanel implements vscode.WebviewViewProvider {
         const entry = store.entries.find((e) => e.id === id);
         const version = entry?.versions?.[Number(msg.index) || 0];
         if (!entry || !version) break;
-        const ok = await vscode.window.showWarningMessage(
+        if (!(await this.askConfirm(
           `回滚「${entry.title}」到 ${(version.updatedAt || '').slice(0, 10)} 的版本？当前内容会留入版本历史。`,
-          { modal: true },
           '回滚'
-        );
-        if (ok !== '回滚') break;
+        ))) break;
         store.update(entry.id, {
           title: version.title,
           content: version.content,
@@ -539,27 +976,38 @@ export class MemoryPanel implements vscode.WebviewViewProvider {
           metadata:
             patch.metadata && typeof patch.metadata === 'object' ? patch.metadata : undefined,
         });
-        void view.webview.postMessage({ type: 'close' });
+        this.post({ type: 'close' });
         this.openId = undefined;
         if (entry) this.toast('已保存');
         this.push();
         break;
       }
+      case 'create':
+        await this.createFrom(msg.patch);
+        break;
+      case 'gitLoad':
+        this.postGit();
+        break;
+      case 'gitImport':
+        this.importGit(Array.isArray(msg.hashes) ? msg.hashes.map(String) : [], String(msg.space || ''));
+        break;
+      case 'exportCopy':
+        await this.exportJson(false);
+        break;
+      case 'exportWrite':
+        await this.exportJson(true);
+        break;
+      case 'importJson':
+        this.importJsonText(String(msg.text || ''));
+        break;
+      case 'importText':
+        this.importPlain(String(msg.title || ''), String(msg.content || ''), String(msg.space || ''));
+        break;
+      case 'youmengyuGo':
+        await this.importYoumengyu(String(msg.root || ''));
+        break;
       case 'action': {
-        const actionKey = String(msg.action || '');
-        const cmd = ACTION_COMMANDS[actionKey];
-        if (!cmd) break;
-        try {
-          await vscode.commands.executeCommand(cmd);
-          const tip = ACTION_TOAST[actionKey];
-          if (tip) this.toast(tip);
-        } catch (err) {
-          const detail = String(err);
-          this.toast(`执行失败：${detail.slice(0, 60)}`, 'warn');
-          void vscode.window.showErrorMessage(`游梦鱼·长记忆: 执行失败 ${detail}`);
-        }
-        // 命令可能改了记忆（新增 / 提炼 / 导入），面板存活就刷新
-        this.push();
+        await this.runLocalAction(String(msg.action || ''));
         break;
       }
       default:
@@ -845,7 +1293,8 @@ function readClientScript(context: vscode.ExtensionContext): string {
     const dir = path.join(context.extensionPath, 'media');
     cachedClientScript = ['list-window.js', 'panel.js']
       .map((name) => fs.readFileSync(path.join(dir, name), 'utf-8'))
-      .join('\n');
+      .join('\n')
+      .replace(/<\/script/gi, '<\\/script');
   } catch {
     cachedClientScript = '';
   }
@@ -879,28 +1328,52 @@ function renderPlaceholder(): string {
 </html>`;
 }
 
+function renderBoom(err: unknown): string {
+  const detail = esc(err instanceof Error ? err.message : err);
+  return `<!DOCTYPE html><html lang="zh-CN"><body style="font-family:sans-serif;padding:16px">
+    <h2>游梦鱼·长记忆打不开这一页</h2>
+    <p>${detail}</p>
+    <p>请从命令面板再执行一次「打开记忆面板」。</p>
+  </body></html>`;
+}
+
+function renderTagPicks(): string {
+  return MEMORY_TAGS.map((t) => {
+    const on = t === 'lesson';
+    return `<label class="tagopt"><input type="checkbox" name="ctag" value="${t}"${on ? ' checked' : ''}><span>${esc(TAG_LABEL[t] || t)}</span></label>`;
+  }).join('');
+}
+
 function renderHtml(
   webview: vscode.Webview,
   store: MemoryStore,
   state: PanelState,
   context: vscode.ExtensionContext,
-  tab: PanelTab = 'memory'
+  tab: PanelTab = 'memory',
+  preset: { content: string; source: string } = { content: '', source: '' },
+  matched: MemoryEntry[] = []
 ): string {
   const nonce = Math.random().toString(36).slice(2) + Date.now().toString(36);
+  const clientScript = readClientScript(context);
+  const on = (id: PanelTab) => (tab === id ? ' on' : '');
+  const page = (id: PanelTab) => (tab === id ? '' : ' off');
   const csp = `default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';`;
   const repoName = store.workspaceRoot ? path.basename(store.workspaceRoot) : '';
   const storageRel = store.storageFileRel;
-  // 首屏直出：不依赖 webview 脚本回包，脚本被拦时页面依然有内容（虚拟列表接管后会重绘）
-  const initialRows = store
-    .search(state.query, {
-      tag: state.tag || undefined,
-      space: state.space || undefined,
-      sort: state.sort,
-      includeArchived: state.archived,
-      limit: PAGE_SIZE,
-    })
-    .map(toRow);
+  // 首屏直出真实条数和前几行。统计条不能写死 0，否则全选只能选中 0 条。
+  const initialRows = matched.slice(0, FIRST_PAINT).map(toRow);
   const initial = initialRows.length ? renderInitialRows(initialRows) : emptyHtml(store, state);
+  const filteredOn = Boolean(state.query || state.tag || state.space);
+  const emptyKind = matched.length ? '' : store.entries.length ? (filteredOn ? 'filter' : 'view') : 'none';
+  const bootJson = JSON.stringify({
+    total: matched.length,
+    rows: initialRows,
+    emptyKind,
+    state,
+  })
+    .replace(/</g, '\\u003c')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
   const sortOptions = SORT_ITEMS.map(
     (i) => `<option value="${i.value}"${state.sort === i.value ? ' selected' : ''}>${i.label}</option>`
   ).join('');
@@ -930,11 +1403,12 @@ function renderHtml(
     --row-h: 76px;
   }
   * { box-sizing: border-box; }
+  html, body { height: 100%; }
   body {
     margin: 0; font-size: 13px; color: var(--fg);
     font-family: var(--vscode-font-family, system-ui, sans-serif);
     background: radial-gradient(1100px 380px at 8% -12%, rgba(77,156,247,.10), transparent 62%), var(--bg);
-    min-height: 100vh; display: flex; flex-direction: column;
+    height: 100%; min-height: 100%; overflow: auto; display: flex; flex-direction: column;
   }
   .app { display: flex; flex-direction: column; max-width: 1200px; width: 100%; margin: 0 auto; padding: 16px 20px 0; }
   .hero {
@@ -1023,6 +1497,13 @@ function renderHtml(
   .batchbar .grow { flex: 1; }
   .batchbar .btn { padding: 4px 10px; font-size: 11.5px; }
   .batchbar .btn.danger { border-color: rgba(244,135,113,.45); color: var(--danger); }
+  .batchbar .btn.on { border-color: var(--accent); color: var(--fg); background: rgba(77,156,247,.16); }
+  .batchbar .btn:disabled, .sel-master input:disabled { opacity: .4; cursor: default; }
+  .sel-master {
+    display: inline-flex; align-items: center; gap: 6px; margin: 0; cursor: pointer;
+    user-select: none; color: var(--fg);
+  }
+  .sel-master input { width: 15px; height: 15px; margin: 0; accent-color: var(--accent); cursor: pointer; }
   .sel-info { color: var(--muted); }
   .sel-info b { color: var(--accent); font-weight: 600; }
   /* 列表容器：跟随整页滚动（页面本身可滚，区块多时也能全部看到），
@@ -1040,6 +1521,7 @@ function renderHtml(
     border-bottom: 1px solid var(--border); overflow: hidden;
   }
   .row:hover { background: rgba(77,156,247,.07); }
+  .row.picked, .row.picked:hover { background: rgba(77,156,247,.12); }
   .row.pinned { box-shadow: inset 3px 0 0 var(--accent); }
   .row.archived { opacity: .58; }
   .row-sel { flex: none; width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; margin: 0; }
@@ -1091,9 +1573,9 @@ function renderHtml(
   code { background: rgba(128,128,128,.16); border-radius: 5px; padding: 1px 6px; font-size: 11.5px; }
   .foot { margin: 8px 0 10px; color: var(--muted); font-size: 10.5px; text-align: center; line-height: 1.7; flex: none; }
   /* 标签页：记忆 / AI 服务（同一侧边栏视图内切换，不另开页面） */
-  .tabs { display: flex; gap: 8px; max-width: 1200px; width: 100%; margin: 0 auto; padding: 14px 20px 0; flex: none; }
+  .tabs { display: flex; gap: 6px; max-width: 1200px; width: 100%; margin: 0 auto; padding: 10px 12px 0; flex: none; overflow-x: auto; }
   .tab {
-    flex: 1; border: 1px solid var(--border); background: var(--card2); color: var(--muted);
+    flex: 0 0 auto; border: 1px solid var(--border); background: var(--card2); color: var(--muted);
     border-radius: 10px; padding: 7px 10px; font-size: 12.5px; font-family: inherit; cursor: pointer;
     display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all .15s ease;
   }
@@ -1101,6 +1583,15 @@ function renderHtml(
   .tab.on { background: rgba(77,156,247,.16); border-color: var(--accent); color: var(--fg); font-weight: 600; }
   .off { display: none !important; }
   /* AI 服务设置（并入标签页后的页面样式） */
+  .page { max-width: 1200px; width: 100%; margin: 0 auto; padding: 4px 16px 32px; }
+  .page h2 { font-size: 14px; margin: 12px 0 8px; }
+  .git-row { display: flex; gap: 8px; align-items: flex-start; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .confirm {
+    position: sticky; bottom: 0; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    margin: 8px 12px 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px;
+    background: var(--card); z-index: 25;
+  }
+  .confirm p { margin: 0; flex: 1; min-width: 140px; font-size: 12.5px; }
   #aiapp { max-width: 1200px; width: 100%; margin: 0 auto; padding: 0 20px 48px; }
   #aiapp h2 { font-size: 14px; margin: 18px 0 8px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
   #aiapp h3.sub { font-size: 12.5px; margin: 12px 0 6px; opacity: .85; }
@@ -1221,11 +1712,15 @@ function renderHtml(
 </head>
 <body>
   <nav class="tabs" id="tabs">
-    <button class="tab${tab === 'memory' ? ' on' : ''}" data-tab="memory">${icon('db')}记忆</button>
-    <button class="tab${tab === 'ai' ? ' on' : ''}" data-tab="ai">${icon('layers')}AI 服务设置</button>
+    <button class="tab${on('memory')}" data-tab="memory">${icon('db')}记忆</button>
+    <button class="tab${on('compose')}" data-tab="compose">${icon('plus')}新建</button>
+    <button class="tab${on('git')}" data-tab="git">${icon('book')}提炼</button>
+    <button class="tab${on('profile')}" data-tab="profile">${icon('star')}画像</button>
+    <button class="tab${on('io')}" data-tab="io">${icon('layers')}导入</button>
+    <button class="tab${on('ai')}" data-tab="ai">${icon('sparkle')}AI</button>
   </nav>
 
-  <div class="app${tab === 'ai' ? ' off' : ''}" id="memapp">
+  <div class="app${page('memory')}" id="memapp">
     <header class="hero">
       <div class="brand">
         <div class="logo">🐟</div>
@@ -1266,14 +1761,16 @@ function renderHtml(
       <button class="btn" data-act="refresh">${icon('refresh')}刷新</button>
     </section>
 
-    <section class="profile" id="profile">${renderProfile(store)}</section>
-
     <section class="batchbar">
-      <span class="sel-info" id="selinfo">共 <b id="total">0</b> 条 · 已选 <b id="selcount">0</b> 条</span>
+      <label class="sel-master" title="选中当前筛选结果的全部条目">
+        <input type="checkbox" id="selmaster"${matched.length ? '' : ' disabled'}>
+        <span>全选</span>
+      </label>
+      <span class="sel-info" id="selinfo">共 <b id="total">${matched.length}</b> 条 · 已选 <b id="selcount">0</b> 条</span>
       <span class="grow"></span>
-      <button class="btn" data-act="selAll" title="选中当前筛选结果的全部条目">全选结果</button>
-      <button class="btn" data-act="selNone">清除选择</button>
-      <button class="btn danger" data-act="batchDelete" title="删除所选（批量）">${icon('trash')}删除所选</button>
+      <button type="button" class="btn" id="selallbtn" data-act="selAll" title="选中当前筛选结果的全部条目"${matched.length ? '' : ' disabled'}>全选</button>
+      <button type="button" class="btn" id="selnone" data-act="selNone" disabled>清除选择</button>
+      <button type="button" class="btn danger" id="batchdel" data-act="batchDelete" title="删除所选（批量）" disabled>${icon('trash')}删除所选</button>
     </section>
 
     <main class="listbox" id="listbox">
@@ -1287,12 +1784,67 @@ function renderHtml(
     </footer>
   </div>
 
-  <section id="aiapp" class="${tab === 'ai' ? '' : 'off'}"><p class="muted">正在加载 AI 服务设置…</p></section>
+  <section id="composeapp" class="page${page('compose')}">
+    <h2>${icon('plus')} 新建记忆</h2>
+    <form id="composeform">
+      <label class="field"><span>标题</span><input name="title" placeholder="留空则用正文首行"></label>
+      <label class="field"><span>正文</span><textarea name="content" id="ccontent" rows="8">${esc(preset.content)}</textarea></label>
+      <div class="field-row">
+        <label class="field"><span>重要性</span><span class="range-row"><input name="importance" type="range" min="1" max="5" step="1" value="3"><span class="range-val">P3</span></span></label>
+        <label class="field"><span>记忆空间</span><input name="space" placeholder="默认"></label>
+      </div>
+      <label class="field"><span>来源（可选）</span><input name="source" id="csource" value="${esc(preset.source)}"></label>
+      <div class="field"><span>标签</span><div class="tagpick">${renderTagPicks()}</div></div>
+      <div class="drawer-actions"><button type="button" class="btn primary" data-act="create">保存到本仓库</button></div>
+    </form>
+  </section>
 
+  <section id="gitapp" class="page${page('git')}">
+    <h2>${icon('book')} 从 Git 提交提炼</h2>
+    <p class="muted small">勾选踩坑或重大变更，直接写成记忆。不打开选择框。</p>
+    <label class="field"><span>写入空间</span><input id="gitspace" placeholder="默认"></label>
+    <div id="gitlist"><p class="muted">打开这一页时读取最近 30 条提交…</p></div>
+    <div class="drawer-actions">
+      <button type="button" class="btn" data-act="gitReload">重新读取</button>
+      <button type="button" class="btn primary" data-act="gitImport">提炼所选</button>
+    </div>
+  </section>
+
+  <section id="profileapp" class="page${page('profile')}">
+    <h2>${icon('star')} 仓库画像</h2>
+    <p class="muted small">置顶和 P5 会整段注入 AGENTS.md。点一条可看详情。</p>
+    <div class="profile" id="profile">${renderProfile(store)}</div>
+  </section>
+
+  <section id="ioapp" class="page${page('io')}">
+    <h2>${icon('layers')} 导入 / 导出</h2>
+    <label class="field"><span>JSON</span><textarea id="iojson" rows="6" placeholder="粘贴记忆 JSON，或点下面的按钮把当前记忆填进来"></textarea></label>
+    <div class="drawer-actions">
+      <button type="button" class="btn" data-act="exportCopy">复制 JSON</button>
+      <button type="button" class="btn" data-act="exportWrite">写入仓库文件</button>
+      <button type="button" class="btn primary" data-act="importJson">导入 JSON</button>
+    </div>
+    <label class="field"><span>单条正文（md / txt）</span><input id="iotitle" placeholder="标题，留空用首行"></label>
+    <label class="field"><span>正文</span><textarea id="iomd" rows="5" placeholder="把一段教训或约定贴在这里"></textarea></label>
+    <label class="field"><span>空间</span><input id="iospace" placeholder="默认"></label>
+    <div class="drawer-actions"><button type="button" class="btn primary" data-act="importText">导入这条正文</button></div>
+    <label class="field"><span>数字人仓库路径（含 .youmengyu/memory）</span><input id="ioroot" placeholder="D:/Web/asaiwebagent"></label>
+    <div class="drawer-actions"><button type="button" class="btn" data-act="youmengyuGo">导入数字人记忆</button></div>
+  </section>
+
+  <section id="aiapp" class="${page('ai')}"><p class="muted">正在加载 AI 服务设置…</p></section>
+  ${clientScript ? '' : '<p class="empty-title">面板脚本没有打进安装包。页面能看，按钮暂时不会动。请重新打包安装。</p>'}
+
+  <div class="confirm off" id="confirm">
+    <p id="confirmtext"></p>
+    <button type="button" class="btn danger" id="confirmok" data-act="confirmYes">确认</button>
+    <button type="button" class="btn" data-act="confirmNo">取消</button>
+  </div>
   <div class="overlay" id="overlay"><aside class="drawer" id="drawer"></aside></div>
   <div class="toast" id="toast"></div>
 
-<script nonce="${nonce}">${readClientScript(context)}</script>
+<script nonce="${nonce}">window.__AIMEM_BOOT=${bootJson};</script>
+<script nonce="${nonce}">${clientScript}</script>
 </body>
 </html>`;
 }

@@ -1,0 +1,38 @@
+{
+  "id": "fa4a7e8c69dd",
+  "title": "有 coach 则按其中路径与验收做，禁止再搜 skip。",
+  "content": "有 coach 则按其中路径与验收做，禁止再搜 skip。",
+  "tags": [
+    "preference"
+  ],
+  "importance": 5,
+  "createdAt": "2026-11-25T05:10:38.978Z",
+  "updatedAt": "2026-11-25T05:59:49.467Z",
+  "source": "agent:2d14f60c-04a2-4a38-84ad-0a3c256bac86",
+  "uses": 0,
+  "pinned": false,
+  "space": "default",
+  "facts": [
+    "有 coach 则按其中路径与验收做，禁止再搜 skip。"
+  ],
+  "metadata": {
+    "by": "agent-learn",
+    "kind": "rule",
+    "session": "2d14f60c-04a2-4a38-84ad-0a3c256bac86"
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": [
+    {
+      "title": "有 coach 则按其中路径与验收做，禁止再搜 skip。",
+      "content": "有 coach 则按其中路径与验收做，禁止再搜 skip。",
+      "tags": [
+        "preference"
+      ],
+      "importance": 4,
+      "updatedAt": "2026-11-25T05:10:38.978Z",
+      "note": "元信息调整前"
+    }
+  ]
+}

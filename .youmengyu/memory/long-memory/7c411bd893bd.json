@@ -1,0 +1,28 @@
+{
+  "id": "7c411bd893bd",
+  "title": "本仓代码风格",
+  "content": "本仓代码风格（抽样 8 个源文件）：缩进用2 空格；字符串用单引号；语句保留分号。新代码按这个风格写。",
+  "tags": [
+    "preference"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-25T05:10:43.122Z",
+  "updatedAt": "2026-11-25T05:10:43.122Z",
+  "source": "twin-local",
+  "uses": 0,
+  "space": "本机",
+  "facts": [
+    "本仓代码风格（抽样 8 个源文件）：缩进用2 空格；",
+    "字符串用单引号；",
+    "语句保留分号。",
+    "新代码按这个风格写。"
+  ],
+  "metadata": {
+    "twin": "local",
+    "kind": "style"
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": []
+}

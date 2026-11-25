@@ -1,0 +1,57 @@
+{
+  "id": "f603c5c59344",
+  "title": "对话·打包后安装插件 打不开了，修复好，并优化提升整体性能。另外，将所有标签页",
+  "content": "会话 18c60b2b-5c56-44f2-b739-8119a90d3ed7\n用户（5 轮）：\n- 打包后安装插件 打不开了，修复好，并优化提升整体性能。另外，将所有标签页面都集中在插件中切换显示，不再使用弹窗或其他窗口显示了。\n- 插件栏的窗口 打不开\n- <available_subagent_types> Available subagent_types and a quick description of what they do: - generalPurpose: General-purpose agent for researching complex questions, searching f…\n- 插件栏的窗口 打不开\n- Briefly inform the user about the task result and perform any follow-up actions (if needed). If there's no follow-ups needed, don't explicitly say that.\n助手收尾：查找侧边栏布局记录的那次扫描被中断了，没有读出结果。不影响已经装上的 0.6.0。重新加载窗口后，记忆面板会自己展开。",
+  "tags": [
+    "workflow"
+  ],
+  "importance": 2,
+  "createdAt": "2026-11-25T05:27:41.756Z",
+  "updatedAt": "2026-11-25T06:00:02.359Z",
+  "source": "agent:18c60b2b-5c56-44f2-b739-8119a90d3ed7",
+  "uses": 0,
+  "pinned": false,
+  "space": "agent",
+  "facts": [
+    "会话 18c60b2b-5c56-44f2-b739-8119a90d3ed7",
+    "用户（5 轮）：",
+    "打包后安装插件 打不开了，修复好，并优化提升整体性能。",
+    "另外，将所有标签页面都集中在插件中切换显示，不再使用弹窗或其他窗口显示了。",
+    "插件栏的窗口 打不开",
+    "<available_subagent_types> Available subagent_types and a quick description of what they do: - generalPurpose: General-purpose agent for researching complex questions, searching f…",
+    "Briefly inform the user about the task result and perform any follow-up actions (if needed)",
+    "If there's no follow-ups needed, don't explicitly say that"
+  ],
+  "metadata": {
+    "by": "agent-learn",
+    "kind": "session",
+    "inject": "skip",
+    "session": "18c60b2b-5c56-44f2-b739-8119a90d3ed7",
+    "turns": "14"
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": [
+    {
+      "title": "对话·打包后安装插件 打不开了，修复好，并优化提升整体性能。另外，将所有标签页",
+      "content": "会话 18c60b2b-5c56-44f2-b739-8119a90d3ed7\n用户（4 轮）：\n- 打包后安装插件 打不开了，修复好，并优化提升整体性能。另外，将所有标签页面都集中在插件中切换显示，不再使用弹窗或其他窗口显示了。\n- 插件栏的窗口 打不开\n- <available_subagent_types> Available subagent_types and a quick description of what they do: - generalPurpose: General-purpose agent for researching complex questions, searching f…\n- 插件栏的窗口 打不开\n助手收尾：插件栏的窗口打不开，是因为侧边栏收起时，点活动栏只把扩展唤醒了，记忆面板没有被展开。0.6.0 已装进 Cursor，重新加载窗口后会自己展开。 ## 详细成因 - 当前窗口的主侧边栏是收起的。点「游梦鱼·长记忆」时，扩展确实被 `onView:aimemory.panel` 激活了，但侧边栏没有展开，所以看起来像窗口没开。 - 正在运行的还是旧的 0.5.0。它只对视图做 focus，不会先把侧边栏拉开。活动栏图标也经常被收进「更多」菜单，不在第一排。 ## 解决办法 - `src/panel.ts` 打开面板时先执行 `workbench.action.focusSideBar`，再切到 `workbench.view.extension.aimemory`。 - 激活大约 0.6 秒后会主动展开一次记忆…",
+      "tags": [
+        "workflow"
+      ],
+      "importance": 2,
+      "updatedAt": "2026-11-25T05:59:49.465Z",
+      "note": "内容改写前"
+    },
+    {
+      "title": "对话·打包后安装插件 打不开了，修复好，并优化提升整体性能。另外，将所有标签页",
+      "content": "会话 18c60b2b-5c56-44f2-b739-8119a90d3ed7\n用户（1 轮）：\n- 打包后安装插件 打不开了，修复好，并优化提升整体性能。另外，将所有标签页面都集中在插件中切换显示，不再使用弹窗或其他窗口显示了。\n助手收尾：打包后的插件打不开，是因为侧边栏恢复时视图还没注册上。这个已经修好，六个页面也都收进同一个记忆面板里切换。 请先卸掉当前的 0.5.0，再安装刚打好的 `youmengyu-mem-0.5.0.vsix`，然后重新加载窗口。现在正在跑的仍是旧包，不重装看不到这次修改。 **打开** 活动栏图标或状态栏书签都会打开「游梦鱼·长记忆」。视图提供器在读记忆之前就注册好了，激活事件补了 `onView:aimemory.panel`。脚本没打进安装包时，页面会直接写出原因，不再是一片空白。 **面板里的标签** 记忆、新建、提炼、画像、导入、AI。新建、Git 提炼、仓库画像、JSON/正文/数字人导入、删除和回滚确认都在这个面板里完成。搜索会聚焦记忆页的搜索框。 **更快一点** 首屏只带 40 行，其余滚动再取。…",
+      "tags": [
+        "workflow"
+      ],
+      "importance": 2,
+      "updatedAt": "2026-11-25T05:27:41.756Z",
+      "note": "内容改写前"
+    }
+  ]
+}

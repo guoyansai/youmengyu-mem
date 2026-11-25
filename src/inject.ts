@@ -94,10 +94,7 @@ export function collectSections(store: MemoryStore, limit: number): InjectSectio
 
 export async function generateInject(store: MemoryStore, opts?: { silent?: boolean }): Promise<void> {
   const root = store.workspaceRoot;
-  if (!root || !store.ready) {
-    void vscode.window.showWarningMessage('游梦鱼·长记忆: 请先打开一个工作区');
-    return;
-  }
+  if (!root || !store.ready) return;
   const cfg = vscode.workspace.getConfiguration('aimemory');
   const targets = cfg.get<string[]>('injectTargets', ['AGENTS.md']);
   const limit = cfg.get<number>('maxInjectEntries', 60);

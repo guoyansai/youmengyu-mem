@@ -1,12 +1,12 @@
 {
   "version": 2,
-  "at": "2026-11-25T03:29:13.971Z",
+  "at": "2026-11-25T06:55:23.783Z",
   "host": "cursor",
   "cwd": "D:/Web/aicodingmem",
-  "conversationId": "9b63ce34-f2c9-4854-bf7e-a0f251ab3df8",
-  "promptFp": "896b43c07825",
-  "intent": "notes",
-  "confidence": 0.88,
+  "conversationId": "7ddb8d21-9f32-4c3e-bdcb-ea9f411440a2",
+  "promptFp": "3cc6f7b2e5bb",
+  "intent": "doc_qa",
+  "confidence": 0.87,
   "engine": "keyword-stub",
   "actor": "youmengyu-model",
   "route": "LOCAL",
@@ -17,17 +17,19 @@
   "handled": false,
   "first": [
     "npm run cmd -- twin:model",
-    "独立模型 notes"
+    "AGENTS.md 摘要"
   ],
   "skip": [
     "mem_recall",
-    "long-memory",
-    "整篇 collection",
-    "编造记忆",
+    "简单问答时的 codebase-explore",
+    "通读大文档",
     "mem_context",
-    "mem_review"
+    "mem_review",
+    "codebase-explore",
+    "long-memory"
   ],
   "blockSkills": [
+    "codebase-explore",
     "long-memory"
   ],
   "blockMcp": [
@@ -38,10 +40,14 @@
   "evidenceLine": "",
   "evidence": [
     {
+      "kind": "digest",
+      "text": "--> ## 数字人记忆摘要（自动维护，勿手改 · 详情见大脑仓库 memory/） ### 用户画像 - 我的家：通讯必须走通讯插件配置的地址，不要在功能里另开通道。 - 操作台·AI 对话默认用数字人自带种子 youmengyu-model（约12MB）；模型能做的事（日程/口算/本地记忆/本仓文档/寒暄）不再走 Skill 或 MCP，使用即训练。改…"
+    },
+    {
       "kind": "playbook",
-      "text": "新功能：整理进度弹窗可缩小展开，并显示当前正在使用的模型"
+      "text": "工程插件点位管理和变量管理增加时报请求的内容不存在"
     }
   ],
   "note": "",
-  "briefing": "【独立模型】notes 0.88\n翻记忆：独立模型当场做，禁止 mem_recall / long-memory。\n先：npm run cmd -- twin:model · 独立模型 notes\n禁：mem_recall · long-memory · 整篇 collection · 编造记忆 · mem_context · mem_review"
+  "briefing": "【独立模型】doc_qa 0.87\n问文档：独立模型当场做；改代码定位仍可 Grep。\n先：npm run cmd -- twin:model · AGENTS.md 摘要\n禁：mem_recall · 简单问答时的 codebase-explore · 通读大文档 · mem_context · mem_review · codebase-explore · long-memory"
 }

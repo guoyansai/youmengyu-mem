@@ -1,15 +1,33 @@
 {
   "files": {
-    "AGENTS.md": 1,
-    "src/agent-learn.ts": 1,
-    "src/agent-loop.ts": 1,
-    "src/extension.ts": 1,
-    "media/panel.js": 1,
+    "AGENTS.md": 5,
+    "src/agent-learn.ts": 2,
+    "src/agent-loop.ts": 2,
+    "src/extension.ts": 3,
+    "media/panel.js": 3,
     "media/list-window.js": 1,
-    "src/panel.ts": 1,
-    "package.json": 1,
-    ".youmengyu/test/unit/panel-list.test.mjs": 1
+    "src/panel.ts": 5,
+    "package.json": 3,
+    ".youmengyu/test/unit/panel-list.test.mjs": 2,
+    "identity.md": 2,
+    "goals.md": 2,
+    "src/twin-local.ts": 2,
+    "src/twin-loop.ts": 2,
+    "src/ai/settings-panel.ts": 1,
+    ".youmengyu/test/unit/panel-shell.test.mjs": 3,
+    "awareness.md": 1,
+    "CHANGELOG.md": 1,
+    ".youmengyu/test/unit/changelog-hourly.test.mjs": 1,
+    "agent-assist.json": 1,
+    "panel.ts": 1,
+    "panel-shell.test.mjs": 2,
+    "dist/panel.js": 1,
+    "extension.ts": 1,
+    ".vscode/extensions.json": 1,
+    ".youmengyu/test/unit/panel-open-fallback.test.mjs": 1
   },
-  "commands": {},
-  "updatedAt": "2026-11-25T03:28:06.470Z"
+  "commands": {
+    "git 用户名是「游梦鱼」，所以个人文件是 `CHANGELOG+游梦鱼.md…": 1
+  },
+  "updatedAt": "2026-11-25T07:15:33.034Z"
 }

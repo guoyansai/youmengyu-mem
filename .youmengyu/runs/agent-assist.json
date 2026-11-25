@@ -1,42 +1,50 @@
 {
   "version": 2,
-  "at": "2026-11-25T03:29:14.648Z",
+  "at": "2026-11-25T07:18:39.454Z",
   "host": "cursor",
   "cwd": "D:/Web/aicodingmem",
-  "conversationId": "2d14f60c-04a2-4a38-84ad-0a3c256bac86",
-  "promptFp": "3a8156a90d40",
-  "intent": "notes",
-  "confidence": 0.88,
-  "engine": "keyword-stub",
-  "actor": "youmengyu-model",
-  "route": "LOCAL",
-  "tokenSaved": true,
-  "local": true,
-  "lane": "answer",
+  "conversationId": "0d6ad0f2-00d3-4eec-b92b-d077deae01f9",
+  "promptFp": "7cd4f8c0c4b7",
+  "intent": "code_agent",
+  "confidence": 0.99,
+  "engine": "host-system",
+  "actor": "code_agent",
+  "route": "CLOUD",
+  "tokenSaved": false,
+  "local": false,
+  "lane": "coach",
   "localReply": "",
   "handled": false,
+  "coach": {
+    "goal": "任务已完成。数字人记忆摘要已自动维护，通讯地址配置正确，AI对话默认使用自带模型",
+    "paths": [],
+    "accept": "改完只跑本改动对应的测试",
+    "skip": [
+      "整库盲探",
+      "整文件通读",
+      "复述需求",
+      "长分析"
+    ]
+  },
   "first": [
-    "npm run cmd -- twin:model",
-    "独立模型 notes"
+    "AGENTS.md 摘要",
+    "repo-熟悉-*"
   ],
   "skip": [
-    "mem_recall",
-    "long-memory",
-    "整篇 collection",
-    "编造记忆",
-    "mem_context",
-    "mem_review"
+    "整库盲探",
+    "整文件通读",
+    "复述需求",
+    "长分析"
   ],
-  "blockSkills": [
-    "long-memory"
-  ],
-  "blockMcp": [
-    "mem_recall",
-    "mem_context",
-    "mem_review"
-  ],
+  "blockSkills": [],
+  "blockMcp": [],
   "evidenceLine": "",
-  "evidence": [],
+  "evidence": [
+    {
+      "kind": "digest",
+      "text": "--> ## 数字人记忆摘要（自动维护，勿手改 · 详情见大脑仓库 memory/） ### 用户画像 - 我的家：通讯必须走通讯插件配置的地址，不要在功能里另开通道。 - 操作台·AI 对话默认用数字人自带种子 youmengyu-model（约12MB）；模型能做的事（日程/口算/本地记忆/本仓文档/寒暄）不再走 Skill 或 MCP，使用即训练。改…"
+    }
+  ],
   "note": "",
-  "briefing": "【独立模型】notes 0.88\n翻记忆：独立模型当场做，禁止 mem_recall / long-memory。\n先：npm run cmd -- twin:model · 独立模型 notes\n禁：mem_recall · long-memory · 整篇 collection · 编造记忆 · mem_context · mem_review"
+  "briefing": "【独立模型】code_agent 0.99\n改代码：Grep 定位后再读片段；工具回执只留结论。\n先：AGENTS.md 摘要 · repo-熟悉-*\n禁：整库盲探 · 整文件通读 · 复述需求 · 长分析"
 }

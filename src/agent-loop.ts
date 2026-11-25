@@ -34,6 +34,7 @@ export function startAgentMemory(
   out?: (line: string) => void
 ): { stop: () => void; rebind: () => void } {
   let timer: ReturnType<typeof setInterval> | undefined;
+  let starter: ReturnType<typeof setTimeout> | undefined;
   let watcher: fs.FSWatcher | undefined;
   let debounce: ReturnType<typeof setTimeout> | undefined;
   let stopped = false;
@@ -111,11 +112,13 @@ export function startAgentMemory(
   };
 
   timer = setInterval(() => void tick(), POLL_MS);
-  void tick();
+  // 首轮扫描会读对话文件。让开激活，侧边栏视图先完成注册和首帧。
+  starter = setTimeout(() => void tick(), 1500);
 
   return {
     stop() {
       stopped = true;
+      if (starter) clearTimeout(starter);
       if (timer) clearInterval(timer);
       if (debounce) clearTimeout(debounce);
       watcher?.close();

@@ -125,14 +125,12 @@ export class MemoryOrganizer {
   }
 
   /** 手动捕获当前编辑器内容（开发 AI 的聊天记录/产出贴进文件后触发）。 */
-  captureActiveEditor(): void {
+  captureActiveEditor(): string {
     const editor = vscode.window.activeTextEditor;
-    if (!editor) {
-      void vscode.window.showWarningMessage('游梦鱼·长记忆: 没有可捕获的活动编辑器');
-      return;
-    }
+    if (!editor) return '没有可捕获的活动编辑器';
     this.enqueue({ kind: 'editor', path: editor.document.uri.fsPath });
     void this.flush('capture');
+    return '已捕获当前编辑器';
   }
 
   private enqueue(src: { kind: 'git' | 'chat' | 'editor'; path?: string }): void {

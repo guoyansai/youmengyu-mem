@@ -147,7 +147,8 @@ export class AiSettingsController {
         return;
       }
       case 'captureEditor': {
-        organizer.captureActiveEditor();
+        const text = organizer.captureActiveEditor();
+        toast(text, text.indexOf('没有') === 0 ? 'err' : 'ok');
         return;
       }
       default:

@@ -3,7 +3,7 @@
  * 性能设计（支持百万级条目）：
  *  - 列表用虚拟渲染：滚动容器 #listbox，画布 #list 按总条数撑高，只渲染可见窗口 ±缓冲
  *  - 数据分页：首屏 200 行，滚动近尾部时向宿主发 loadMore 续拉下一页
- *  - 批量管理：勾选走 id 集合；「全选结果」只记标记，删除时由宿主按当前筛选重算，不传百万 id
+ *  - 批量管理：勾选走 id 集合；「全选」只记标记，取消的几条放 except，删除时由宿主按当前筛选重算
  */
 (function () {
   var vscode = typeof acquireVsCodeApi === 'function' ? acquireVsCodeApi() : { postMessage: function () {} };
@@ -22,20 +22,33 @@
   var toastEl = document.getElementById('toast');
   var totalEl = document.getElementById('total');
   var selcountEl = document.getElementById('selcount');
+  var selmaster = document.getElementById('selmaster');
+  var selAllBtn = document.getElementById('selallbtn');
+  var selNoneBtn = document.getElementById('selnone');
+  var batchDelBtn = document.getElementById('batchdel');
   var tabs = document.getElementById('tabs');
   var memapp = document.getElementById('memapp');
   var aiapp = document.getElementById('aiapp');
   var timer = null;
   var toastTimer = null;
 
-  /* ---------- 标签页切换：记忆 / AI 服务设置（同一视图内切换，不另开页面） ---------- */
+  /* ---------- 标签页：全部页面都在这个视图里切换，不另开窗口 ---------- */
   var curTab = 'memory';
+  var PAGE = {
+    memory: memapp,
+    compose: document.getElementById('composeapp'),
+    git: document.getElementById('gitapp'),
+    profile: document.getElementById('profileapp'),
+    io: document.getElementById('ioapp'),
+    ai: aiapp,
+  };
   function setTab(tab) {
-    curTab = tab === 'ai' ? 'ai' : 'memory';
+    curTab = Object.prototype.hasOwnProperty.call(PAGE, tab) ? tab : 'memory';
     var btns = tabs.querySelectorAll('[data-tab]');
     for (var i = 0; i < btns.length; i++) btns[i].classList.toggle('on', btns[i].dataset.tab === curTab);
-    memapp.classList.toggle('off', curTab !== 'memory');
-    aiapp.classList.toggle('off', curTab !== 'ai');
+    Object.keys(PAGE).forEach(function (k) {
+      if (PAGE[k]) PAGE[k].classList.toggle('off', k !== curTab);
+    });
     window.scrollTo(0, 0);
   }
   tabs.addEventListener('click', function (ev) {
@@ -61,16 +74,21 @@
   }
 
   /* ---------- 虚拟列表状态 ---------- */
-  var rows = [];          // 已加载的行数据（轻量对象）
-  var total = 0;          // 当前筛选结果总数（可远大于 rows.length）
+  // 首屏引导：条数和第一页行在 HTML 里就写好。没引导之前不要用 total=0 去重画，否则滚动会把直出列表清成空状态。
+  var boot = (window.__AIMEM_BOOT && typeof window.__AIMEM_BOOT === 'object') ? window.__AIMEM_BOOT : {};
+  var rows = Array.isArray(boot.rows) ? boot.rows.slice() : [];
+  var total = typeof boot.total === 'number' ? boot.total : 0;
+  var live = Array.isArray(boot.rows);
   var loading = false;    // loadMore 在途标记
   var rafPending = false; // 滚动渲染合并标记
-  var sel = {};           // 勾选集合（id -> true）
-  var selAll = false;     // 「全选结果」标记：删除按宿主当前筛选重算，不逐条传 id
+  var sel = {};           // 勾选集合（id -> true），全选时不用它
+  var selAll = false;     // 全选标记：删除按宿主当前筛选重算，不逐条传 id
   var selCount = 0;
+  var except = {};        // 全选之后取消的 id
+  var exceptCount = 0;
   var epoch = 0;          // 与宿主 viewEpoch 对齐，过期分页回包丢弃
   var filterKey = '';     // 筛选指纹：只有筛选变了才回顶、清空勾选
-  var emptyKind = 'filter';
+  var emptyKind = typeof boot.emptyKind === 'string' ? boot.emptyKind : 'filter';
 
   function currentRowH() {
     var v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--row-h'));
@@ -91,12 +109,17 @@
     return out;
   }
 
+  function rowOn(id) {
+    return selAll ? !except[id] : !!sel[id];
+  }
+
   function rowHtml(r, index) {
-    var checked = selAll || sel[r.id] ? ' checked' : '';
+    var on = rowOn(r.id);
+    var checked = on ? ' checked' : '';
     var pills = '';
     for (var i = 0; i < r.g.length; i++) pills += '<span class="tag">' + esc(r.g[i]) + '</span>';
     var flags = (r.ar ? '<span class="pill">已归档</span>' : '') + (r.ex ? '<span class="pill warn">已过期</span>' : '');
-    return '<div class="row' + (r.pin ? ' pinned' : '') + (r.ar ? ' archived' : '') + '" data-row="' + esc(r.id) + '" style="top:' + index * currentRowH() + 'px">' +
+    return '<div class="row' + (r.pin ? ' pinned' : '') + (r.ar ? ' archived' : '') + (on ? ' picked' : '') + '" data-row="' + esc(r.id) + '" style="top:' + index * currentRowH() + 'px">' +
       '<input type="checkbox" class="row-sel" data-sel="' + esc(r.id) + '" title="选择"' + checked + '>' +
       '<div class="row-main" data-act="detail" data-id="' + esc(r.id) + '" title="查看详情">' +
         '<div class="row-top"><span class="row-title">' + (r.pin ? '⭐ ' : '') + esc(r.t) + '</span>' +
@@ -141,6 +164,7 @@
   }
 
   function render() {
+    if (!live || !list) return;
     if (!total) {
       list.style.height = 'auto';
       if (listbox) listbox.classList.add('is-empty');
@@ -180,16 +204,46 @@
     s = s || {};
     return [s.query || '', s.tag || '', s.space || '', s.sort || '', s.archived ? '1' : '0'].join('\u0001');
   }
+  if (boot.state) filterKey = filterKeyOf(boot.state);
+
+  function selectedCount() {
+    return selAll ? Math.max(0, total - exceptCount) : selCount;
+  }
 
   function updateSelInfo() {
-    totalEl.textContent = String(total);
-    selcountEl.textContent = String(selAll ? total : selCount);
+    var n = selectedCount();
+    var allOn = total > 0 && n === total;
+    var partial = n > 0 && !allOn;
+    if (totalEl) totalEl.textContent = String(total);
+    if (selcountEl) selcountEl.textContent = String(n);
+    if (selmaster) {
+      selmaster.checked = allOn;
+      selmaster.indeterminate = partial;
+      selmaster.disabled = total === 0;
+    }
+    if (selAllBtn) {
+      selAllBtn.disabled = total === 0;
+      if (selAllBtn.classList) selAllBtn.classList.toggle('on', allOn);
+    }
+    if (selNoneBtn) selNoneBtn.disabled = n === 0;
+    if (batchDelBtn) batchDelBtn.disabled = n === 0;
   }
 
   function setSel(id, on) {
+    if (!id) return;
+    if (selAll) {
+      if (on) {
+        if (except[id]) { delete except[id]; exceptCount--; }
+      } else if (!except[id]) {
+        except[id] = true;
+        exceptCount++;
+      }
+      if (total > 0 && exceptCount >= total) { clearSel(); return; }
+      updateSelInfo();
+      return;
+    }
     if (on && !sel[id]) { sel[id] = true; selCount++; }
     if (!on && sel[id]) { delete sel[id]; selCount--; }
-    selAll = false;
     updateSelInfo();
   }
 
@@ -197,7 +251,24 @@
     sel = {};
     selCount = 0;
     selAll = false;
+    except = {};
+    exceptCount = 0;
     updateSelInfo();
+  }
+
+  function selectAll() {
+    if (!total) {
+      showToast('当前没有可选条目', 'warn');
+      updateSelInfo();
+      return;
+    }
+    selAll = true;
+    except = {};
+    exceptCount = 0;
+    sel = {};
+    selCount = 0;
+    updateSelInfo();
+    render();
   }
 
   /* ---------- 筛选状态 ---------- */
@@ -218,12 +289,12 @@
     timer = setTimeout(ask, 180);
   }
 
-  q.addEventListener('input', askSoon);
-  sort.addEventListener('change', ask);
-  space.addEventListener('change', ask);
-  archived.addEventListener('change', ask);
+  if (q) q.addEventListener('input', askSoon);
+  if (sort) sort.addEventListener('change', ask);
+  if (space) space.addEventListener('change', ask);
+  if (archived) archived.addEventListener('change', ask);
 
-  chips.addEventListener('click', function (ev) {
+  if (chips) chips.addEventListener('click', function (ev) {
     var btn = ev.target.closest('[data-tag]');
     if (!btn) return;
     chips.dataset.tag = btn.dataset.tag;
@@ -284,35 +355,55 @@
 
   document.addEventListener('change', function (ev) {
     var t = ev.target;
-    if (t && t.matches && t.matches('[data-sel]')) setSel(t.dataset.sel, t.checked);
+    if (!t || !t.matches) return;
+    if (t.id === 'selmaster') {
+      if (t.checked) selectAll();
+      else { clearSel(); render(); }
+      return;
+    }
+    if (t.matches('[data-sel]')) setSel(t.dataset.sel, t.checked);
   });
 
+  function actNode(ev) {
+    var node = ev && ev.target;
+    if (!node) return null;
+    if (node.nodeType === 3) node = node.parentElement || node.parentNode || node.parent;
+    if (!node || !node.closest) return null;
+    return node.closest('[data-act]');
+  }
+
   document.addEventListener('click', function (ev) {
-    var el = ev.target.closest('[data-act]');
+    var el = actNode(ev);
     if (!el) {
       if (ev.target === overlay) closeDrawer();
       return;
     }
     var act = el.dataset.act;
     var id = el.dataset.id || '';
+    if (act === 'confirmYes' || act === 'confirmNo') { answerConfirm(act === 'confirmYes'); return; }
+    if (act === 'create') { submitCompose(); return; }
+    if (act === 'gitReload') { vscode.postMessage({ type: 'gitLoad' }); return; }
+    if (act === 'gitImport') { submitGit(); return; }
+    if (act === 'exportCopy' || act === 'exportWrite') { vscode.postMessage({ type: act }); return; }
+    if (act === 'importJson') { submitImport(); return; }
+    if (act === 'importText') { submitText(); return; }
+    if (act === 'youmengyuGo') { submitYoumengyu(); return; }
     if (act === 'save') { saveForm(); return; }
     if (act === 'close') { closeDrawer(); return; }
     if (act === 'rollback') {
       vscode.postMessage({ type: 'rollback', id: id, index: Number(el.dataset.vindex) || 0 });
       return;
     }
-    if (act === 'selAll') {
-      selAll = true;
-      sel = {};
-      selCount = 0;
-      updateSelInfo();
-      render();
-      return;
-    }
+    if (act === 'selAll') { selectAll(); return; }
     if (act === 'selNone') { clearSel(); render(); return; }
     if (act === 'batchDelete') {
-      if (!selAll && !selCount) { showToast('先勾选要删除的条目', 'warn'); return; }
-      vscode.postMessage({ type: 'batchDelete', all: selAll, ids: Object.keys(sel) });
+      if (!selectedCount()) { showToast('先勾选要删除的条目', 'warn'); return; }
+      vscode.postMessage({
+        type: 'batchDelete',
+        all: selAll,
+        ids: selAll ? [] : Object.keys(sel),
+        except: selAll ? Object.keys(except) : [],
+      });
       return;
     }
     if (act === 'scan') {
@@ -565,6 +656,87 @@
     bindAi();
   }
 
+  var confirmToken = '';
+  function showConfirm(msg) {
+    confirmToken = msg.token || '';
+    var box = document.getElementById('confirm');
+    if (!box) {
+      vscode.postMessage({ type: 'confirmAnswer', token: confirmToken, ok: false });
+      return;
+    }
+    var text = document.getElementById('confirmtext');
+    if (text) text.textContent = msg.text || '';
+    var okBtn = document.getElementById('confirmok');
+    if (okBtn) okBtn.textContent = msg.okLabel || '确认';
+    box.classList.remove('off');
+  }
+  function answerConfirm(ok) {
+    var box = document.getElementById('confirm');
+    if (box) box.classList.add('off');
+    vscode.postMessage({ type: 'confirmAnswer', token: confirmToken, ok: ok });
+    confirmToken = '';
+  }
+  function formVal(form, name) {
+    var el = form.querySelector('[name=' + name + ']');
+    return el ? el.value : '';
+  }
+  function submitCompose() {
+    var form = document.getElementById('composeform');
+    if (!form) return;
+    vscode.postMessage({
+      type: 'create',
+      patch: {
+        title: formVal(form, 'title').trim(),
+        content: formVal(form, 'content'),
+        importance: Number(formVal(form, 'importance')) || 3,
+        space: formVal(form, 'space').trim(),
+        source: formVal(form, 'source'),
+        tags: Array.prototype.map.call(form.querySelectorAll('[name=ctag]:checked'), function (c) { return c.value; }),
+      },
+    });
+  }
+  function submitGit() {
+    var host = document.getElementById('gitlist');
+    if (!host) return;
+    var boxes = host.querySelectorAll('[data-hash]');
+    var hashes = [];
+    for (var i = 0; i < boxes.length; i++) if (boxes[i].checked) hashes.push(boxes[i].dataset.hash);
+    var spaceEl = document.getElementById('gitspace');
+    vscode.postMessage({ type: 'gitImport', hashes: hashes, space: spaceEl ? spaceEl.value : '' });
+  }
+  function renderGit(msg) {
+    var host = document.getElementById('gitlist');
+    if (!host) return;
+    var commits = msg.commits || [];
+    if (msg.error) { host.innerHTML = '<p class="muted">' + esc(msg.error) + '</p>'; return; }
+    if (!commits.length) { host.innerHTML = '<p class="muted">没有可用的提交记录</p>'; return; }
+    var html = '';
+    for (var i = 0; i < commits.length; i++) {
+      var c = commits[i];
+      html += '<label class="git-row"><input type="checkbox" data-hash="' + esc(c.hash) + '"><span><b>' + esc(c.subject) + '</b> <span class="muted">' + esc(c.hash) + ' ' + esc(c.date) + '</span></span></label>';
+    }
+    host.innerHTML = html;
+  }
+  function submitImport() {
+    var box = document.getElementById('iojson');
+    vscode.postMessage({ type: 'importJson', text: box ? box.value : '' });
+  }
+  function submitText() {
+    var title = document.getElementById('iotitle');
+    var body = document.getElementById('iomd');
+    var spaceEl = document.getElementById('iospace');
+    vscode.postMessage({
+      type: 'importText',
+      title: title ? title.value : '',
+      content: body ? body.value : '',
+      space: spaceEl ? spaceEl.value : '',
+    });
+  }
+  function submitYoumengyu() {
+    var root = document.getElementById('ioroot');
+    vscode.postMessage({ type: 'youmengyuGo', root: root ? root.value : '' });
+  }
+
   window.addEventListener('message', function (ev) {
     var msg = ev.data || {};
     if (msg.type === 'results') {
@@ -572,7 +744,7 @@
       chips.innerHTML = msg.chipsHtml;
       var st = msg.state || {};
       chips.dataset.tag = st.tag || '';
-      profile.innerHTML = msg.profileHtml;
+      if (profile) profile.innerHTML = msg.profileHtml;
       space.innerHTML = msg.spacesHtml;
       space.value = st.space || '';
       rows = msg.rows || [];
@@ -589,8 +761,11 @@
         sel = {};
         selCount = 0;
         selAll = false;
+        except = {};
+        exceptCount = 0;
       }
-      loadmore.classList.toggle('off', rows.length >= total);
+      live = true;
+      if (loadmore) loadmore.classList.toggle('off', rows.length >= total);
       updateSelInfo();
       render();
       maybeLoadMore();
@@ -605,7 +780,9 @@
       rows = applied.rows;
       if (typeof msg.total === 'number') total = msg.total;
       loading = false;
-      loadmore.classList.toggle('off', rows.length >= total);
+      live = true;
+      if (loadmore) loadmore.classList.toggle('off', rows.length >= total);
+      updateSelInfo();
       render();
       maybeLoadMore();
       return;
@@ -627,6 +804,28 @@
     }
     if (msg.type === 'close') { closeDrawer(); return; }
     if (msg.type === 'toast') { showToast(msg.text, msg.kind); return; }
+    if (msg.type === 'focusSearch') { setTab('memory'); if (q) q.focus(); return; }
+    if (msg.type === 'compose') {
+      setTab('compose');
+      var ccontent = document.getElementById('ccontent');
+      var csource = document.getElementById('csource');
+      if (ccontent && msg.content) ccontent.value = msg.content;
+      if (csource) csource.value = msg.source || '';
+      return;
+    }
+    if (msg.type === 'gitList') { setTab('git'); renderGit(msg); return; }
+    if (msg.type === 'ioText') {
+      setTab('io');
+      var iojson = document.getElementById('iojson');
+      if (iojson) iojson.value = msg.text || '';
+      return;
+    }
+    if (msg.type === 'ioState') {
+      var ioroot = document.getElementById('ioroot');
+      if (ioroot && !ioroot.value) ioroot.value = msg.root || '';
+      return;
+    }
+    if (msg.type === 'confirm') { showConfirm(msg); return; }
     if (msg.type === 'tabState') { setTab(msg.tab); return; }
     if (msg.type === 'aiState') {
       aiState.prefs = msg.prefs;
@@ -650,5 +849,6 @@
     }
   });
 
+  if (live) updateSelInfo();
   ask();
 })();

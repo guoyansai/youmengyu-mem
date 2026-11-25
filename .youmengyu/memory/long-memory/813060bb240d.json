@@ -1,0 +1,26 @@
+{
+  "id": "813060bb240d",
+  "title": "插件已经在本仓库里接住的，是数字人「陪你写代码」这一层： - 记住当前 Age…",
+  "content": "插件已经在本仓库里接住的，是数字人「陪你写代码」这一层： - 记住当前 Agent 的对话，从里抽出约定和教训，重复出现就加重要度，写进 `AGENTS.md` 给下次开工用。",
+  "tags": [
+    "lesson"
+  ],
+  "importance": 3,
+  "createdAt": "2026-11-25T06:08:57.959Z",
+  "updatedAt": "2026-11-25T06:08:57.959Z",
+  "source": "agent:281f24f1-e672-4426-85f8-cf0f2312fe45",
+  "uses": 0,
+  "space": "default",
+  "facts": [
+    "插件已经在本仓库里接住的，是数字人「陪你写代码」这一层： - 记住当前 Agent 的对话，从里抽出约定和教训，重复出现就加重要度，写进 `AGENTS.md` 给下次开工用。"
+  ],
+  "metadata": {
+    "by": "agent-learn",
+    "kind": "rule",
+    "session": "281f24f1-e672-4426-85f8-cf0f2312fe45"
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": []
+}

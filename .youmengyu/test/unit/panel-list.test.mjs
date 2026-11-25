@@ -290,6 +290,10 @@ function boot(opts = {}) {
   const toastEl = register('toast', 'div');
   const totalEl = register('total', 'b');
   const selcountEl = register('selcount', 'b');
+  const selmaster = register('selmaster', 'input');
+  const selAllBtn = register('selallbtn', 'button');
+  const selNoneBtn = register('selnone', 'button');
+  const batchDelBtn = register('batchdel', 'button');
   const tabs = register('tabs', 'nav');
   const memapp = register('memapp', 'div');
   const aiapp = register('aiapp', 'section');
@@ -326,8 +330,14 @@ function boot(opts = {}) {
     for (const fn of windowListeners[type] || []) fn(ev);
   };
   global.acquireVsCodeApi = () => ({ postMessage: (m) => messages.push(JSON.parse(JSON.stringify(m))) });
+  if (opts.boot) global.__AIMEM_BOOT = opts.boot;
+  else delete global.__AIMEM_BOOT;
 
-  vm.runInThisContext(panelJs, { filename: 'panel.js' });
+  try {
+    vm.runInThisContext(panelJs, { filename: 'panel.js' });
+  } finally {
+    delete global.__AIMEM_BOOT;
+  }
 
   function send(msg) { global.dispatch('message', { data: msg }); }
   function click(node) { document.dispatch('click', { target: node }); }
@@ -335,6 +345,7 @@ function boot(opts = {}) {
 
   return {
     messages, q, sort, space, archived, list, listbox, chips, drawer, toastEl, totalEl, selcountEl,
+    selmaster, selAllBtn, selNoneBtn, batchDelBtn,
     tabs, memapp, aiapp, overlay, tabAi, loadmore, send, click, acts, document,
   };
 }
@@ -370,6 +381,82 @@ test('滚到列表顶仍渲染第 0 行；再往下滚才让开头离开窗口',
   assert.doesNotMatch(ui.list.innerHTML, /data-row="r0"/);
   assert.match(ui.list.innerHTML, /data-row="r10"/);
   assert.match(ui.list.innerHTML, /top:760px/);
+});
+
+test('统计还没接管时，滚动不能把已画出的列表清成空状态', () => {
+  const ui = boot();
+  ui.list.innerHTML = '<div class="row" data-row="keep">保留</div>';
+  global.dispatch('scroll', {});
+  assert.match(ui.list.innerHTML, /data-row="keep"/);
+  assert.equal(ui.totalEl.textContent, '');
+});
+
+test('首屏引导带上真实条数，全选按总数计，取消一条只减一条', () => {
+  const state = { query: '', tag: '', space: '', sort: 'relevance', archived: false };
+  const ui = boot({
+    listDocTop: 0,
+    boot: {
+      total: 5,
+      rows: [row('a'), row('b'), row('c')],
+      emptyKind: '',
+      state,
+    },
+  });
+  assert.equal(ui.totalEl.textContent, '5');
+  assert.equal(ui.selcountEl.textContent, '0');
+  assert.equal(ui.batchDelBtn.disabled, true);
+  assert.equal(ui.selNoneBtn.disabled, true);
+
+  const selAll = { dataset: { act: 'selAll' }, closest: (s) => (s === '[data-act]' ? selAll : null) };
+  ui.click(selAll);
+  assert.equal(ui.selcountEl.textContent, '5');
+  assert.equal(ui.selmaster.checked, true);
+  assert.equal(ui.selmaster.indeterminate, false);
+  assert.equal(ui.batchDelBtn.disabled, false);
+  assert.equal(ui.selAllBtn.classList.contains('on'), true);
+  assert.match(ui.list.innerHTML, /data-sel="a"[^>]*checked/);
+
+  const box = ui.list.querySelectorAll('[data-sel]')[0];
+  box.checked = false;
+  ui.document.dispatch('change', { target: box });
+  assert.equal(ui.selcountEl.textContent, '4');
+  assert.equal(ui.selmaster.checked, false);
+  assert.equal(ui.selmaster.indeterminate, true);
+
+  ui.messages.length = 0;
+  ui.send(resultMsg({ rows: [row('a'), row('b'), row('c')], total: 5, epoch: 1, state }));
+  assert.equal(ui.selcountEl.textContent, '4', '同一筛选的回包不能把已选清掉');
+
+  const batch = { dataset: { act: 'batchDelete' }, closest: (s) => (s === '[data-act]' ? batch : null) };
+  ui.messages.length = 0;
+  ui.click(batch);
+  const msg = ui.acts('batchDelete')[0];
+  assert.equal(msg.all, true);
+  assert.deepEqual(msg.ids, []);
+  assert.deepEqual(msg.except, ['a']);
+
+  const selNone = { dataset: { act: 'selNone' }, closest: (s) => (s === '[data-act]' ? selNone : null) };
+  ui.click({ nodeType: 3, parentElement: selNone });
+  assert.equal(ui.selcountEl.textContent, '0');
+
+  ui.selmaster.checked = true;
+  ui.document.dispatch('change', { target: ui.selmaster });
+  assert.equal(ui.selcountEl.textContent, '5');
+  ui.selmaster.checked = false;
+  ui.document.dispatch('change', { target: ui.selmaster });
+  assert.equal(ui.selcountEl.textContent, '0');
+  assert.equal(ui.batchDelBtn.disabled, true);
+});
+
+test('批量条的条数来自筛选结果，不再写死 0', () => {
+  assert.match(panelTs, /window\.__AIMEM_BOOT=/);
+  assert.match(panelTs, /id="total">\$\{matched\.length\}/);
+  assert.match(panelTs, /id="selmaster"/);
+  assert.match(panelTs, /id="batchdel"/);
+  assert.match(panelTs, /msg\.except/);
+  assert.doesNotMatch(panelTs, /id="total">0</);
+  assert.match(panelJs, /if \(!live \|\| !list\) return/);
+  assert.match(panelJs, /exceptCount/);
 });
 
 test('空列表保持可看见的空状态，不再把高度打成 0', () => {

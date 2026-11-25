@@ -1,0 +1,35 @@
+{
+  "id": "5202fb31ff60",
+  "title": "对话·npm run publish 的时候自动更新版本号（避免报错： ERR",
+  "content": "会话 73a08515-7c7c-4c8e-a4ca-f2706f202aff\n用户（1 轮）：\n- npm run publish 的时候自动更新版本号（避免报错： ERROR youmengyu-mem.youmengyu-mem v0.5.0 already exists.），更新UI或比较小的从最右边第一位更新，大一点的从第二位，从左边数第一位仅手动更新。\n助手收尾：`npm run publish` 会先改版本号再发给市场，避免 `v0.5.0 already exists`。当前仓库版本仍是 `0.5.0`，这次没有真正发布。 进位规则（`x.y.z`）： - 只改界面（`src/panel.ts`、`src/ai/settings-panel.ts`、`media/`、样式和图片），或非界面增删不超过 80 行：末位加一，`0.5.0` → `0.5.1`。 - 非界面改动超过 80 行：左起第二位加一，末位归零，`0.5.0` → `0.6.0`。 - 最左一位不自动改。要动它就手改 `package.json`，或执行 `npm run release:major`。 比较范围是「当前版本号写入」之后到工作区的改动。按现在的代码，下次直接 `npm run pu…",
+  "tags": [
+    "workflow"
+  ],
+  "importance": 2,
+  "createdAt": "2026-11-25T05:17:37.174Z",
+  "updatedAt": "2026-11-25T05:17:37.174Z",
+  "source": "agent:73a08515-7c7c-4c8e-a4ca-f2706f202aff",
+  "uses": 0,
+  "space": "agent",
+  "facts": [
+    "会话 73a08515-7c7c-4c8e-a4ca-f2706f202aff",
+    "用户（1 轮）：",
+    "npm run publish 的时候自动更新版本号（避免报错： ERROR youmengyu-mem.youmengyu-mem v0.5.0 already exists.），更新UI或比较小的从最右边第一位更新，大一点的从第二位，从左边数第一位仅手动更新。",
+    "助手收尾：`npm run publish` 会先改版本号再发给市场，避免 `v0.5.0 already exists`。",
+    "当前仓库版本仍是 `0.5.0`，这次没有真正发布。",
+    "进位规则（`x.y.z`）： - 只改界面（`src/panel.ts`、`src/ai/settings-panel.ts`、`media/`、样式和图片），或非界面增删不超过 80 行：末位加一，`0.5.0` → `0.5.1`。",
+    "非界面改动超过 80 行：左起第二位加一，末位归零，`0.5.0` → `0.6.0`。",
+    "最左一位不自动改。"
+  ],
+  "metadata": {
+    "by": "agent-learn",
+    "kind": "session",
+    "inject": "skip",
+    "session": "73a08515-7c7c-4c8e-a4ca-f2706f202aff",
+    "turns": "4"
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": []
+}

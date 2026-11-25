@@ -1,0 +1,26 @@
+{
+  "id": "2046d65e99b9",
+  "title": "我先读开工助手和本次查修约定，再对着列表实现把统计和选择修通。",
+  "content": "我先读开工助手和本次查修约定，再对着列表实现把统计和选择修通。",
+  "tags": [
+    "workflow"
+  ],
+  "importance": 3,
+  "createdAt": "2026-11-25T06:15:27.035Z",
+  "updatedAt": "2026-11-25T06:15:27.035Z",
+  "source": "agent:d11b83c3-84d6-4c45-874c-42989092e406",
+  "uses": 0,
+  "space": "default",
+  "facts": [
+    "我先读开工助手和本次查修约定，再对着列表实现把统计和选择修通。"
+  ],
+  "metadata": {
+    "by": "agent-learn",
+    "kind": "rule",
+    "session": "d11b83c3-84d6-4c45-874c-42989092e406"
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": []
+}

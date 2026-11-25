@@ -1,13 +1,15 @@
 {
-  "title": "查修BUG：记忆面板列表窗口与 AI 整理按钮",
-  "summary": "查修BUG：虚拟列表按列表在文档中的起点计算可见行，空列表不再把高度写成 0；分页按 offset 与 epoch 落地，筛选切换后的旧页不会拼进新结果。AI 立即整理记忆改为星火胶囊按钮，标题栏图标改为 sparkle，与刷新的环形箭头和灰色方钮区分开。",
+  "title": "查修BUG：Cursor 打不开记忆面板；新功能：按小时写更新日志",
+  "summary": "查修BUG：Cursor 侧栏 webview 空白，改为编辑区打开同一面板并延迟重绘。新功能：按 git 用户写 CHANGELOG+用户名.md，CHANGELOG.md 保留完整日志，按小时分节，打包时标上版本号。",
   "type": "查修BUG",
   "files": [
-    "media/list-window.js",
-    "media/panel.js",
     "src/panel.ts",
-    "package.json",
-    ".youmengyu/test/unit/panel-list.test.mjs"
+    "src/extension.ts",
+    "src/changelog-log.ts",
+    "src/changelog-sync.ts",
+    "scripts/stamp-changelog.mjs",
+    ".youmengyu/test/unit/panel-shell.test.mjs",
+    ".youmengyu/test/unit/changelog-hourly.test.mjs"
   ],
-  "testCommand": "npm run asaitest"
+  "testCommand": "node --test .youmengyu/test/unit/panel-shell.test.mjs .youmengyu/test/unit/changelog-hourly.test.mjs"
 }

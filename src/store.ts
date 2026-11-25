@@ -215,8 +215,8 @@ export class MemoryStore {
   private _onChange = new vscode.EventEmitter<void>();
   readonly onChange = this._onChange.event;
 
-  constructor() {
-    this.bindWorkspace();
+  constructor(opts?: { defer?: boolean }) {
+    if (!opts?.defer) this.bindWorkspace();
     vscode.workspace.onDidChangeWorkspaceFolders(() => this.bindWorkspace());
   }
 

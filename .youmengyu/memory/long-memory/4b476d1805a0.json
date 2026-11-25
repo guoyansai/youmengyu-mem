@@ -1,0 +1,35 @@
+{
+  "id": "4b476d1805a0",
+  "title": "对话·只要安装了这个插件 就自动开启记忆当前aigent的所有对话并学习强化自",
+  "content": "会话 2d14f60c-04a2-4a38-84ad-0a3c256bac86\n用户（4 轮）：\n- 只要安装了这个插件 就自动开启记忆当前aigent的所有对话并学习强化自身长记忆，利用插件的长记忆数据自动辅助agent编程，确保当前项目的规则和开发效率\n- <available_subagent_types> Available subagent_types and a quick description of what they do: - generalPurpose: General-purpose agent for researching complex questions, searching f…\n- 只要安装了这个插件 就自动开启记忆当前aigent的所有对话并学习强化自身长记忆，利用插件的长记忆数据自动辅助agent编程，确保当前项目的规则和开发效率\n- 优化插件提升能力 完全替代游梦鱼数字人的能力 可以取代游梦鱼数字人的能力\n助手收尾：安装并打开工作区后，插件会在当前仓库里自己做数字人的日常编程辅助：守则、焦点、代码风格、开工简报、叙事、长记忆和提交说明。不必再另开数字人进程。 **打开工作区后会做** - 缺少身份或目标文件时补上；已有的 `identity.md`、`goals.md` 保持原样。当前焦点从目标文件读出，和本机守则一起置顶进长记忆，并写入 `AGENTS.md`。 - 抽样源码，记下缩进、引号和分号，要求新代码按这个风格写。 - 写开工简报和本机叙事。对话里的规则、教训仍按上一版自动记住并强化。 - 正文完全相同的重复记忆每拍归档最多 20 条，留下更重要的那一份。 - 命令「游梦鱼·长记忆: 起草提交说明」把草稿写入 Changes 框。已有说明会追加，不会覆盖。插件不执行提交。 不想自动跑时，关掉 `aimemory…",
+  "tags": [
+    "workflow"
+  ],
+  "importance": 2,
+  "createdAt": "2026-11-25T05:10:38.968Z",
+  "updatedAt": "2026-11-25T05:10:38.968Z",
+  "source": "agent:2d14f60c-04a2-4a38-84ad-0a3c256bac86",
+  "uses": 0,
+  "space": "agent",
+  "facts": [
+    "会话 2d14f60c-04a2-4a38-84ad-0a3c256bac86",
+    "用户（4 轮）：",
+    "只要安装了这个插件 就自动开启记忆当前aigent的所有对话并学习强化自身长记忆，利用插件的长记忆数据自动辅助agent编程，确保当前项目的规则和开发效率",
+    "<available_subagent_types> Available subagent_types and a quick description of what they do: - generalPurpose: General-purpose agent for researching complex questions, searching f…",
+    "优化插件提升能力 完全替代游梦鱼数字人的能力 可以取代游梦鱼数字人的能力",
+    "助手收尾：安装并打开工作区后，插件会在当前仓库里自己做数字人的日常编程辅助：守则、焦点、代码风格、开工简报、叙事、长记忆和提交说明。",
+    "不必再另开数字人进程。",
+    "打开工作区后会做** - 缺少身份或目标文件时补上；"
+  ],
+  "metadata": {
+    "by": "agent-learn",
+    "kind": "session",
+    "inject": "skip",
+    "session": "2d14f60c-04a2-4a38-84ad-0a3c256bac86",
+    "turns": "11"
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": []
+}

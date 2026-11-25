@@ -1,8 +1,8 @@
 {
   "name": "youmengyu-mem",
   "displayName": "游梦鱼·长记忆 (AI Memory for Git Repos)",
-  "description": "给每个 Git 仓库一份可长期积累、可注入 AI 编程助手的本地长记忆：事实化存储、画像注入、语义重排检索、版本链与关系图、空间分区；数据按条目存进仓库自身的 .youmengyu/memory/long-memory，与游梦鱼数字人共用同一份本仓记忆。",
-  "version": "0.5.0",
+  "description": "给每个 Git 仓库一份可长期积累、可注入 AI 编程助手的本地长记忆。安装后在本仓库内接管数字人的日常编程辅助：记住对话、强化规则、注入守则与焦点、对照代码风格、写开工简报和叙事、起草提交说明。",
+  "version": "0.8.0",
   "publisher": "youmengyu-mem",
   "license": "MIT",
   "icon": "media/icon.png",
@@ -27,6 +27,10 @@
     "Education"
   ],
   "activationEvents": [
+    "onView:aimemory.panel",
+    "onCommand:aimemory.openPanel",
+    "onCommand:aimemory.add",
+    "onCommand:aimemory.search",
     "onStartupFinished"
   ],
   "main": "./dist/extension.js",
@@ -45,7 +49,8 @@
         {
           "id": "aimemory.panel",
           "name": "记忆面板",
-          "type": "webview"
+          "type": "webview",
+          "visibility": "visible"
         }
       ]
     },
@@ -173,6 +178,18 @@
         "title": "AI 捕获当前编辑器内容为记忆",
         "category": "游梦鱼·长记忆",
         "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "aimemory.twin.beat",
+        "title": "运行本机一拍（守则 / 风格 / 简报 / 叙事）",
+        "category": "游梦鱼·长记忆",
+        "icon": "$(pulse)"
+      },
+      {
+        "command": "aimemory.commit.draft",
+        "title": "起草提交说明",
+        "category": "游梦鱼·长记忆",
+        "icon": "$(git-commit)"
       }
     ],
     "menus": {
@@ -235,6 +252,11 @@
           "default": true,
           "description": "安装后自动记住当前工作区 Agent 的全部对话：对话留档可检索，其中的规则、约定和教训写入长记忆，重复出现则提高重要性。关闭则不再监听对话"
         },
+        "aimemory.localTwin": {
+          "type": "boolean",
+          "default": true,
+          "description": "安装后在当前仓库内接管数字人的日常编程辅助：播种身份与目标（已有文件不覆盖）、对照源码写风格、写开工简报和叙事、把守则与当前焦点注入长记忆，并归档正文完全相同的重复条目。关闭则不再自动跑这一拍"
+        },
         "aimemory.youmengyuRoot": {
           "type": "string",
           "default": "D:/Web/asaiwebagent",
@@ -243,7 +265,7 @@
         "aimemory.youmengyuAutoImport": {
           "type": "boolean",
           "default": true,
-          "description": "插件激活时自动导入数字人 .youmengyu 记忆到当前仓库（同内容幂等合并，仅新增时提示）。数字人仓库自身默认跳过：其插件数据已存进 memory 分区共用同一份目录，再导入会形成副本"
+          "description": "可选的历史迁移：激活时把旧数字人仓库的 .youmengyu 记忆导入当前仓库（同内容幂等合并，仅新增时提示）。日常编程辅助由本插件在当前仓库内完成，不依赖该目录是否存在"
         }
       }
     },
@@ -264,8 +286,8 @@
     "compile": "tsc -p ./",
     "asaitest": "npm run compile && node --test \".youmengyu/test/**/*.test.mjs\"",
     "watch": "tsc -watch -p ./",
-    "package": "npm run compile && vsce package --no-dependencies",
-    "publish": "npm run compile && vsce publish --no-dependencies",
+    "package": "npm run compile && node scripts/stamp-changelog.mjs && vsce package --no-dependencies",
+    "publish": "node scripts/bump-for-publish.mjs",
     "publish:ovsx": "ovsx publish",
     "vscode:prepublish": "npm run compile",
     "release": "node scripts/release.mjs",

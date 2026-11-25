@@ -1,0 +1,26 @@
+{
+  "id": "896b43c07825",
+  "title": "记忆面板的 列表有问题 自行测试确保所有交互正常AI立即整理记忆的按钮 重新设…",
+  "content": "记忆面板的 列表有问题 自行测试确保所有交互正常AI立即整理记忆的按钮 重新设计一下 不能和刷新的雷同",
+  "tags": [
+    "workflow"
+  ],
+  "importance": 4,
+  "createdAt": "2026-11-25T05:10:38.993Z",
+  "updatedAt": "2026-11-25T05:10:38.993Z",
+  "source": "agent:9b63ce34-f2c9-4854-bf7e-a0f251ab3df8",
+  "uses": 0,
+  "space": "default",
+  "facts": [
+    "记忆面板的 列表有问题 自行测试确保所有交互正常AI立即整理记忆的按钮 重新设计一下 不能和刷新的雷同"
+  ],
+  "metadata": {
+    "by": "agent-learn",
+    "kind": "rule",
+    "session": "9b63ce34-f2c9-4854-bf7e-a0f251ab3df8"
+  },
+  "archived": false,
+  "isLatest": true,
+  "relations": [],
+  "versions": []
+}

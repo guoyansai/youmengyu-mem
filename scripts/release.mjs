@@ -6,9 +6,11 @@
  *   node scripts/release.mjs              # 默认 patch
  *   node scripts/release.mjs patch        # 0.3.0 → 0.3.1
  *   node scripts/release.mjs minor        # 0.3.0 → 0.4.0
- *   node scripts/release.mjs major        # 0.3.0 → 1.0.0
+ *   node scripts/release.mjs major        # 0.3.0 → 1.0.0（主版本只走这里或手改）
  *   node scripts/release.mjs 0.5.0        # 直接指定版本号
  *   node scripts/release.mjs patch --dry-run   # 只改版本+编译+打包，不发布
+ *
+ * 日常 `npm run publish` 不走本脚本：它按改动自动选末位或次位，不改最左一位。
  *
  * 步骤: bump → sync lockfile → compile → package → publish
  */
@@ -17,6 +19,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { nextVersion } from './version-bump.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -66,11 +69,11 @@ let newVersion;
 if (/^\d+\.\d+\.\d+$/.test(bumpArg)) {
   newVersion = bumpArg;
 } else {
-  const [ma, mi, pa] = currentVersion.split('.').map(Number);
-  if (bumpArg === 'major') newVersion = `${ma + 1}.0.0`;
-  else if (bumpArg === 'minor') newVersion = `${ma}.${mi + 1}.0`;
-  else if (bumpArg === 'patch') newVersion = `${ma}.${mi}.${pa + 1}`;
-  else fail(`未知版本级别: ${bumpArg}（支持 patch / minor / major / x.y.z）`);
+  try {
+    newVersion = nextVersion(currentVersion, bumpArg);
+  } catch (err) {
+    fail(err instanceof Error ? err.message : String(err));
+  }
 }
 if (newVersion === currentVersion) {
   fail(`新版本 ${newVersion} 与当前版本相同，无需发布`);

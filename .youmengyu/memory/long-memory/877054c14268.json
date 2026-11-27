@@ -7,9 +7,10 @@
   ],
   "importance": 3,
   "createdAt": "2026-11-25T05:27:41.760Z",
-  "updatedAt": "2026-11-25T05:27:41.760Z",
+  "updatedAt": "2026-11-25T11:18:36.373Z",
   "source": "agent:18c60b2b-5c56-44f2-b739-8119a90d3ed7",
   "uses": 0,
+  "pinned": false,
   "space": "default",
   "facts": [
     "打包后打不开、性能，以及标签页全部收进插件内切换，我先读开工助手和仓库约定，再定位打开失败和弹窗实现。"
@@ -19,8 +20,8 @@
     "kind": "rule",
     "session": "18c60b2b-5c56-44f2-b739-8119a90d3ed7"
   },
-  "archived": false,
-  "isLatest": true,
+  "archived": true,
+  "isLatest": false,
   "relations": [],
   "versions": []
 }

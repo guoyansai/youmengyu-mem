@@ -7,9 +7,10 @@
   ],
   "importance": 3,
   "createdAt": "2026-11-25T05:10:38.973Z",
-  "updatedAt": "2026-11-25T05:10:38.973Z",
+  "updatedAt": "2026-11-25T11:48:36.564Z",
   "source": "agent:2d14f60c-04a2-4a38-84ad-0a3c256bac86",
   "uses": 0,
+  "pinned": false,
   "space": "default",
   "facts": [
     "助手入口文件不在，我按功能开发门禁先摸清仓库约定和插件现有的记忆链路。"
@@ -19,8 +20,8 @@
     "kind": "rule",
     "session": "2d14f60c-04a2-4a38-84ad-0a3c256bac86"
   },
-  "archived": false,
-  "isLatest": true,
+  "archived": true,
+  "isLatest": false,
   "relations": [],
   "versions": []
 }

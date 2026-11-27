@@ -7,9 +7,10 @@
   ],
   "importance": 3,
   "createdAt": "2026-11-25T05:10:38.996Z",
-  "updatedAt": "2026-11-25T05:10:38.996Z",
+  "updatedAt": "2026-11-25T11:18:36.376Z",
   "source": "agent:9b63ce34-f2c9-4854-bf7e-a0f251ab3df8",
   "uses": 0,
+  "pinned": false,
   "space": "default",
   "facts": [
     "记忆面板列表和「立即整理」按钮需要一起改，我先读工作流约定，再定位面板实现并自行把交互跑通。"
@@ -19,8 +20,8 @@
     "kind": "rule",
     "session": "9b63ce34-f2c9-4854-bf7e-a0f251ab3df8"
   },
-  "archived": false,
-  "isLatest": true,
+  "archived": true,
+  "isLatest": false,
   "relations": [],
   "versions": []
 }

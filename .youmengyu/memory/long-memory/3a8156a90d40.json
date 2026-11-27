@@ -7,9 +7,10 @@
   ],
   "importance": 4,
   "createdAt": "2026-11-25T05:10:38.971Z",
-  "updatedAt": "2026-11-25T05:10:38.971Z",
+  "updatedAt": "2026-11-25T15:02:22.390Z",
   "source": "agent:2d14f60c-04a2-4a38-84ad-0a3c256bac86",
   "uses": 0,
+  "pinned": false,
   "space": "default",
   "facts": [
     "只要安装了这个插件 就自动开启记忆当前aigent的所有对话并学习强化自身长记忆，利用插件的长记忆数据自动辅助agent编程，确保当前项目的规则和开发效率"
@@ -19,8 +20,8 @@
     "kind": "rule",
     "session": "2d14f60c-04a2-4a38-84ad-0a3c256bac86"
   },
-  "archived": false,
-  "isLatest": true,
+  "archived": true,
+  "isLatest": false,
   "relations": [],
   "versions": []
 }

@@ -7,9 +7,10 @@
   ],
   "importance": 3,
   "createdAt": "2026-11-25T05:10:38.976Z",
-  "updatedAt": "2026-11-25T05:10:38.976Z",
+  "updatedAt": "2026-11-25T11:48:36.558Z",
   "source": "agent:2d14f60c-04a2-4a38-84ad-0a3c256bac86",
   "uses": 0,
+  "pinned": false,
   "space": "default",
   "facts": [
     "接下来会做成：激活即记住对话、把反复出现的约定强化进长记忆，并自动写回 `AGENTS.md`。"
@@ -19,8 +20,8 @@
     "kind": "rule",
     "session": "2d14f60c-04a2-4a38-84ad-0a3c256bac86"
   },
-  "archived": false,
-  "isLatest": true,
+  "archived": true,
+  "isLatest": false,
   "relations": [],
   "versions": []
 }

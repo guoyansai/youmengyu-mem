@@ -7,9 +7,10 @@
   ],
   "importance": 3,
   "createdAt": "2026-11-25T06:15:27.035Z",
-  "updatedAt": "2026-11-25T06:15:27.035Z",
+  "updatedAt": "2026-11-25T10:48:36.409Z",
   "source": "agent:d11b83c3-84d6-4c45-874c-42989092e406",
   "uses": 0,
+  "pinned": false,
   "space": "default",
   "facts": [
     "我先读开工助手和本次查修约定，再对着列表实现把统计和选择修通。"
@@ -19,8 +20,8 @@
     "kind": "rule",
     "session": "d11b83c3-84d6-4c45-874c-42989092e406"
   },
-  "archived": false,
-  "isLatest": true,
+  "archived": true,
+  "isLatest": false,
   "relations": [],
   "versions": []
 }

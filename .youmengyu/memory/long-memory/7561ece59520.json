@@ -7,9 +7,10 @@
   ],
   "importance": 3,
   "createdAt": "2026-11-25T05:27:41.762Z",
-  "updatedAt": "2026-11-25T05:27:41.762Z",
+  "updatedAt": "2026-11-25T10:48:36.415Z",
   "source": "agent:18c60b2b-5c56-44f2-b739-8119a90d3ed7",
   "uses": 0,
+  "pinned": false,
   "space": "default",
   "facts": [
     "约定已对齐：这是查修加优化，测试只跑本次相关用例。"
@@ -19,8 +20,8 @@
     "kind": "rule",
     "session": "18c60b2b-5c56-44f2-b739-8119a90d3ed7"
   },
-  "archived": false,
-  "isLatest": true,
+  "archived": true,
+  "isLatest": false,
   "relations": [],
   "versions": []
 }

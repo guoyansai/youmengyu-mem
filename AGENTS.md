@@ -33,23 +33,17 @@
   - 来源: agent:89cde04f-a1ed-493c-8a03-4f8504706ad4
 - **.youmengyu中的文件数据变更过于频繁，修复优化一下，不要一次性更新太多…**（偏好·P4）: .youmengyu中的文件数据变更过于频繁，修复优化一下，不要一次性更新太多文件，确保文件记忆正确
   - 来源: agent:89cde04f-a1ed-493c-8a03-4f8504706ad4
-- **我先读开工助手和本次查修约定，再对着列表实现把统计和选择修通。**（工作流·P3）: 我先读开工助手和本次查修约定，再对着列表实现把统计和选择修通。
-  - 来源: agent:d11b83c3-84d6-4c45-874c-42989092e406
 - **插件已经在本仓库里接住的，是数字人「陪你写代码」这一层： - 记住当前 Age…**（教训·P3）: 插件已经在本仓库里接住的，是数字人「陪你写代码」这一层： - 记住当前 Agent 的对话，从里抽出约定和教训，重复出现就加重要度，写进 `AGENTS.md` 给下次开工用。
   - 来源: agent:281f24f1-e672-4426-85f8-cf0f2312fe45
-- **约定已对齐：这是查修加优化，测试只跑本次相关用例。**（工作流·P3）: 约定已对齐：这是查修加优化，测试只跑本次相关用例。
-  - 来源: agent:18c60b2b-5c56-44f2-b739-8119a90d3ed7
-- **打包后打不开、性能，以及标签页全部收进插件内切换，我先读开工助手和仓库约定，再…**（教训·P3）: 打包后打不开、性能，以及标签页全部收进插件内切换，我先读开工助手和仓库约定，再定位打开失败和弹窗实现。
-  - 来源: agent:18c60b2b-5c56-44f2-b739-8119a90d3ed7
-
-## 长期记忆条目
-
 - **本仓代码风格**（偏好·P4）: 本仓代码风格（抽样 8 个源文件）：缩进用2 空格；字符串用单引号；语句保留分号。新代码按这个风格写。
   - 来源: twin-local
 - **记忆面板的 列表有问题 自行测试确保所有交互正常AI立即整理记忆的按钮 重新设…**（工作流·P4）: 记忆面板的 列表有问题 自行测试确保所有交互正常AI立即整理记忆的按钮 重新设计一下 不能和刷新的雷同
   - 来源: agent:9b63ce34-f2c9-4854-bf7e-a0f251ab3df8
-- **只要安装了这个插件 就自动开启记忆当前aigent的所有对话并学习强化自身长记…**（偏好·P4）: 只要安装了这个插件 就自动开启记忆当前aigent的所有对话并学习强化自身长记忆，利用插件的长记忆数据自动辅助agent编程，确保当前项目的规则和开发效率
-  - 来源: agent:2d14f60c-04a2-4a38-84ad-0a3c256bac86
+- **2026-09-28T03:22 patrol: code-patrol**（教训·P3）: ### 2026-09-28T03:22 patrol: code-patrol  # 自动巡检：修复 webtuv 的代码健康问题  巡检发现以下问题，请逐项排查并修复，完成后跑通相关检查：  - [ - 为「patrol: code-patrol  # 自动巡检：修复 webtuv 的代码健康问题  巡检发现以下问题，请逐项排查并修复，完成后跑通相关检查：  - [」记下前置校验（失败率 100%） 预期：下次同类任务先核对输入，而不是直接再试一遍  ### 2026-09-30T07:22 patrol: code-patrol - 为「patrol: code-patrol」记下前置校验（失败率 100%） 预期：下次同类任务先核对输入，而不是直接再试一遍  ### 2026-09-30T07:22 # 修复重复失败：unknown - 为「# 修复重复失败：unknown」记下前置校验（失败率 100%） 预期：下次同类任务先核对输入，而不是直接再试一遍  ### 2026-09-30T23:37 Invalid User API Key - 为「Invalid User API Key」记下前置校验（失败率 100%） 预期：下次同类任务先核对输入，而不是直接再试一遍  ### 2026-10-20T00:54 Network request failed - 为「Network request failed」记下前置校验（失败率 100%） 预期：下次同类任务先核对输入，而不是直接再试一遍
+  - 来源: .youmengyu/memory/evolution/wisdom.md
+
+## 长期记忆条目
+
 - **重复构建必须验二次-宿主safe-delete钩子会代理fs删除-生成目录改用同**（教训·P4）: 教训（codebuddy 2026-11-16T01:58:24.672Z）：重复构建必须验二次，宿主safe-delete钩子会代理fs删除，生成目录改用同盘rename并关闭Vite emptyOutDir
   - 来源: .youmengyu/memory/procedural/重复构建必须验二次-宿主safe-delete钩子会代理fs删除-生成目录改用同.md
 - **新增会写盘的-cli-一律先经-lib-data-root-guard-mjs-**（教训·P4）: 教训（workbuddy 2026-09-09T08:36:30.063Z）：新增会写盘的 CLI 一律先经 lib/data-root-guard.mjs 自证 data-root，测试目录防误写；超期判定按 episodic 文件名日期而非 mtime，否则巡检对伪造日期文件失灵。
@@ -114,14 +108,6 @@
   - 来源: .youmengyu/memory/semantic/lessons.md
 - **巡检发现以下问题，请逐项排查并修复，完成后跑通相关检查：**（教训·P4）: - 失败：patrol: code-patrol  # 自动巡检：修复 webtuv 的代码健康问题  巡检发现以下问题，请逐项排查并修复，完成后跑通相关检查：  - [LOW] lint 未通过（> eslint .） - [MED] typecheck 未通过（> vue-tsc --noEmit） - [MED] 依赖存在 2 个高危漏洞  要求：最小改动；修复
   - 来源: .youmengyu/memory/semantic/lessons.md
-- **记忆面板列表和「立即整理」按钮需要一起改，我先读工作流约定，再定位面板实现并自…**（工作流·P3）: 记忆面板列表和「立即整理」按钮需要一起改，我先读工作流约定，再定位面板实现并自行把交互跑通。
-  - 来源: agent:9b63ce34-f2c9-4854-bf7e-a0f251ab3df8
-- **接下来会做成：激活即记住对话、把反复出现的约定强化进长记忆，并自动写回 `AG…**（偏好·P3）: 接下来会做成：激活即记住对话、把反复出现的约定强化进长记忆，并自动写回 `AGENTS.md`。
-  - 来源: agent:2d14f60c-04a2-4a38-84ad-0a3c256bac86
-- **助手入口文件不在，我按功能开发门禁先摸清仓库约定和插件现有的记忆链路。**（偏好·P3）: 助手入口文件不在，我按功能开发门禁先摸清仓库约定和插件现有的记忆链路。
-  - 来源: agent:2d14f60c-04a2-4a38-84ad-0a3c256bac86
-- **2026-09-28T03:22 patrol: code-patrol**（教训·P3）: ### 2026-09-28T03:22 patrol: code-patrol  # 自动巡检：修复 webtuv 的代码健康问题  巡检发现以下问题，请逐项排查并修复，完成后跑通相关检查：  - [ - 为「patrol: code-patrol  # 自动巡检：修复 webtuv 的代码健康问题  巡检发现以下问题，请逐项排查并修复，完成后跑通相关检查：  - [」记下前置校验（失败率 100%） 预期：下次同类任务先核对输入，而不是直接再试一遍  ### 2026-09-30T07:22 patrol: code-patrol - 为「patrol: code-patrol」记下前置校验（失败率 100%） 预期：下次同类任务先核对输入，而不是直接再试一遍  ### 2026-09-30T07:22 # 修复重复失败：unknown - 为「# 修复重复失败：unknown」记下前置校验（失败率 100%） 预期：下次同类任务先核对输入，而不是直接再试一遍  ### 2026-09-30T23:37 Invalid User API Key - 为「Invalid User API Key」记下前置校验（失败率 100%） 预期：下次同类任务先核对输入，而不是直接再试一遍  ### 2026-10-20T00:54 Network request failed - 为「Network request failed」记下前置校验（失败率 100%） 预期：下次同类任务先核对输入，而不是直接再试一遍
-  - 来源: .youmengyu/memory/evolution/wisdom.md
 - **2026-09-30T00:38 深度反刍**（事实·P3）: ## 2026-09-30T00:38 深度反刍 - patrol: code-patrol  # 自动巡检：修复 webtuv 的代码健康问题  巡检发现以下问题，请逐项排查并修复，完成后跑通相关检查：  - [（重复 3 次）  ## 2026-10-07T01:16 深度反刍 - Invalid User API Key（重复 3 次）  ## 2026-10-08T01:33 深度反刍 - Invalid User API Key（重复 5 次）  ## 2026-10-08T02:03 深度反刍 - Invalid User API Key（重复 7 次）  ## 2026-10-09T03:25 深度反刍 ## 2026-10-08T03:24 深度反刍 - Invalid User API Key（重复 4 次）  ## 2026-10-08T04:24 深度反刍 - Invalid User API Key（重复 7 次）  ## 2026-10-08T08:24 深度反刍 - Invalid User API Key（重复 12 次）  ## 2026-10-09T03:41 深度反刍 - Invalid User API Key（重复 15 次）  ## 2026-10-09T04:41 深度反刍 - Invalid User API Key（重复 17 次）  ## 2026-10-09T06:57 深度反刍 - Invalid User API Key（重复 19 次）  ## 2026-10-09T06:57 深度反刍 - Invalid User API Key（重复 19 次） ## 2026-10-09T06:32 深度反刍 - Invalid User API Key（重复 22 次）  ## 2026-10-09T06:32 深度反刍 - Invalid User API Key（重复 22 次）  ## 2026-10-09T10:52 深度反刍 - Invalid User API Key（重复 24 次）  ## 2026-10-10T01:01 深度反刍 - Invalid User API Key（重复 26 次）  ## 2026-10-10T04:19 深度反刍 - Invalid User API Key（重复 29 次） ## 2026-10-09T11:25 深度反刍 - Invalid User API Key（重复 28 次）  ## 2026-10-09T12:25 深度反刍 - Invalid User API Key（重复 29 次）  ## 2026-10-10T01:27 深度反刍 - Invalid User API Key（重复 30 次）  ## 2026-10-10T04:12 深度反刍 - Invalid User API Key（重复 32 次）  ## 2026-10-10T08:27 深度反刍 - Invalid User API Key（重复 33 次）  ## 2026-10-10T11:43 深度反刍 - Invalid User API Key（重复 39 次）  ## 2026-10-10T14:09 深度反刍 - Invalid User API Key（重复 44 次）  ## 2026-10-10T23:48 深度反刍 - Invalid User API Key（重复 45 次）  ## 2026-10-11T04:18 深度反刍 - Invalid User API Key（重复 46 次）  ## 2026-10-12T01:19 深度反刍 - Invalid User API Key（重复 48 次）  ## 2026-10-12T04:19 深度反刍 - Invalid User API Key（重复 49 次）  ## 2026-10-15T03:15 深度反刍 - Invalid User API Key（重复 47 次）  ## 2026-10-16T03:40 深度反刍 - Invalid User API Key（重复 43 次）  ## 2026-10-18T03:00 深度反刍 - Invalid User API Key（重复 40 次）  ## 2026-10-18T04:15 深度反刍 - Invalid User API Key（重复 41 次）  ## 2026-10-19T04:14 深度反刍 - Invalid User API Key（重复 42 次）  ## 2026-10-23T10:45 深度反刍 ## 2026-10-23T10:51 深度反刍 - Invalid User API Key（重复 38 次）  ## 2026-10-26T00:53 深度反刍 ## 2026-10-26T01:01 深度反刍 - Invalid User API Key（重复 37 次）  ## 2026-10-26T02:01 深度反刍 - Invalid User API Key（重复 36 次）  ## 2026-10-26T03:01 深度反刍 - Invalid User API Key（重复 34 次）  ## 2026-10-26T04:56 深度反刍 - Invalid User API Key（重复 31 次）  ## 2026-10-27T04:20 深度反刍 - Invalid User API Key（重复 25 次）  ## 2026-10-28T01:00 深度反刍 - Invalid User API Key（重复 23 次）  ## 2026-10-28T08:26 深度反刍 - Invalid User API Key（重复 16 次）  ## 2026-10-29T01:21 深度反刍 - Invalid User API Key（重复 14 次）  ## 2026-10-30T03:38 深度反刍 - Invalid User API Key（重复 6 次）  ## 2026-10-30T05:00 深度反刍 - Invalid User API Key（重复 8 次）  ## 2026-11-10T04:19 深度反刍 - Invalid User API Key（重复 9 次）  ## 2026-11-11T07:03 深度反刍 - Invalid User API Key（重复 11 次）  ## 2026-11-14T05:12 深度反刍 - Invalid User API Key（重复 10 次）  ## 2026-11-23T02:00 深度反刍 - Network request failed（重复 4 次）  ## 2026-11-23T04:15 深度反刍 - Network request failed（重复 5 次）
   - 来源: .youmengyu/memory/semantic/ruminate.md
 - **js-regex-and-budget-invariants**（事实·P3）: # js-regex-and-budget-invariants ## 2026-09-09T11:25:33.527Z [learn, workbuddy] JS 正则没有 \Z 锚（是字面量 Z）——跨行段落解析用 indexOf/索引切片法，不要用 (?=...|\Z)；改库函数时同批改的测试断言要与实现同步推演（预算上限改值会撞 '常驻块更省' 类不变量断言）。

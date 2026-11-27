@@ -7,9 +7,10 @@
   ],
   "importance": 2,
   "createdAt": "2026-11-25T05:10:38.989Z",
-  "updatedAt": "2026-11-25T05:10:38.989Z",
+  "updatedAt": "2026-11-26T00:49:07.744Z",
   "source": "agent:9b63ce34-f2c9-4854-bf7e-a0f251ab3df8",
   "uses": 0,
+  "pinned": false,
   "space": "agent",
   "facts": [
     "会话 9b63ce34-f2c9-4854-bf7e-a0f251ab3df8",
@@ -28,8 +29,8 @@
     "session": "9b63ce34-f2c9-4854-bf7e-a0f251ab3df8",
     "turns": "4"
   },
-  "archived": false,
-  "isLatest": true,
+  "archived": true,
+  "isLatest": false,
   "relations": [],
   "versions": []
 }
